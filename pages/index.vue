@@ -10,15 +10,11 @@
 
     <!-- Google Sign In Button -->
     <button
-      class="w-full mb-4 h-14 flex items-center justify-center gap-3 bg-white border-2 border-gray-400 rounded-xl hover:bg-gray-50 transition-colors"
-      @click="signInWithGoogle"
+      class="w-full mb-12 h-14 flex items-center justify-center gap-3 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+      @click="handleSignIn"
     >
-      <img src="assets/icons/google-icon.svg" alt="Google" class="w-10 h-10" />
-      <span
-        class="text-3xl text-[#2a3538] font-montserrat p-0 w-65 text-center"
-      >
-        Sign in with Google
-      </span>
+      <img src="assets/icons/google-icon.svg" alt="Google" class="w-5 h-5" />
+      <span class="text-base text-gray-700">Sign in with Google</span>
     </button>
 
     <!-- Subjects Section -->
@@ -67,13 +63,25 @@
 </template>
 
 <script setup lang="ts">
+import { useAuth } from "../composables/useAuth";
+
 const subjects = ["Українська", "English", "TypeScript", "Node.JS"];
 const frequencies = ["1 time", "2 times", "3 times"];
 const selectedFrequency = ref("2 times");
 const selectedSubjects = ref<string[]>([]);
 
-const signInWithGoogle = async () => {
-  // Implement Google sign in
+const { signInWithGoogle } = useAuth();
+const loading = ref(false);
+
+const handleSignIn = async () => {
+  try {
+    loading.value = true;
+    await signInWithGoogle();
+  } catch (error) {
+    console.error("Sign in error:", error);
+  } finally {
+    loading.value = false;
+  }
 };
 
 const toggleSubject = (subject: string) => {

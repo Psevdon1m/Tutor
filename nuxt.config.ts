@@ -28,6 +28,11 @@ export default defineNuxtConfig({
     redirect: false,
     url: process.env.SUPABASE_URL,
     key: process.env.SUPABASE_KEY,
+    redirectOptions: {
+      login: "/",
+      callback: "/confirm",
+      exclude: ["/*"],
+    },
   },
   app: {
     head: {
