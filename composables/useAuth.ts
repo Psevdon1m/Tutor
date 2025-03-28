@@ -11,7 +11,7 @@ export const useAuth = () => {
             access_type: "offline",
             prompt: "consent",
           },
-          redirectTo: `${window.location.origin}/confirm`,
+          redirectTo: `${window.location.origin}/`,
         },
       });
 

@@ -1,21 +1,14 @@
 <template>
   <div class="p-6 max-w-md mx-auto min-h-screen">
     <!-- App Title -->
-    <h1 class="text-4xl font-bold text-[#2a3538] mb-6 font-montserrat">
-      Tutor App
-    </h1>
+    <h1 class="text-4xl font-bold text-gray-900 mb-2">Tutor App</h1>
 
     <!-- Welcome Text -->
-    <h2 class="text-3xl text-[#2a3538] mb-4 font-montserrat">Welcome!</h2>
+    <h2 class="text-3xl text-gray-800 mb-8">Welcome!</h2>
 
-    <!-- Google Sign In Button -->
-    <button
-      class="w-full mb-12 h-14 flex items-center justify-center gap-3 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-      @click="handleSignIn"
-    >
-      <img src="assets/icons/google-icon.svg" alt="Google" class="w-5 h-5" />
-      <span class="text-base text-gray-700">Sign in with Google</span>
-    </button>
+    <!-- Conditionally render either GoogleSignIn or UserProfile -->
+    <UserProfile v-if="user" />
+    <GoogleSignIn v-else />
 
     <!-- Subjects Section -->
     <h2 class="text-2xl font-semibold text-[#2a3538] mb-4 font-montserrat">
@@ -64,6 +57,8 @@
 
 <script setup lang="ts">
 import { useAuth } from "../composables/useAuth";
+import GoogleSignIn from "../components/GoogleSignIn.vue";
+import UserProfile from "../components/UserProfile.vue";
 
 const subjects = ["Українська", "English", "TypeScript", "Node.JS"];
 const frequencies = ["1 time", "2 times", "3 times"];
@@ -71,16 +66,13 @@ const selectedFrequency = ref("2 times");
 const selectedSubjects = ref<string[]>([]);
 
 const { signInWithGoogle } = useAuth();
-const loading = ref(false);
+const user = useSupabaseUser();
 
 const handleSignIn = async () => {
   try {
-    loading.value = true;
     await signInWithGoogle();
   } catch (error) {
     console.error("Sign in error:", error);
-  } finally {
-    loading.value = false;
   }
 };
 
