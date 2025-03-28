@@ -1,0 +1,83 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+# General Principles
+- Use Nuxt 3 with TypeScript for structure and maintainability.
+
+- Follow SOLID, DRY, and KISS principles to ensure clean, scalable code.
+
+- Use Supabase as the backend, handling authentication, database storage, and real-time updates.
+
+- Implement OpenAI API efficiently, ensuring response optimization and cost minimization.
+
+- Ensure PWA compliance with offline support, installability, and push notifications.
+
+- Utilize Tailwind CSS for styling and UI consistency.
+
+# Nuxt 3 & TypeScript
+- Use defineNuxtComponent, defineNuxtPlugin, and definePageMeta appropriately.
+
+- Define all interfaces and types in a types directory for clarity.
+
+- Use useFetch and server routes (server/api/) for data fetching and API integration.
+
+- Ensure modular composition using composables (composables/) for reusable logic (e.g., authentication, subscriptions).
+
+# Authentication & User Management
+- Use Google Auth via Supabase with useSupabaseAuth() and Supabase OAuth providers.
+
+- Store user preferences in Supabase tables (users, subscriptions, settings).
+
+- Implement middleware (middleware/auth.ts) to protect authenticated routes.
+
+# Subscription & Notifications
+- Users select subjects from a predefined list (subjects table in Supabase).
+
+- Allow users to set notification frequency (hourly, daily, weekly).
+
+- Use Supabase Edge Functions or a cron job to trigger OpenAI-generated questions.
+
+- Integrate push notifications via Web Push API or Firebase Cloud Messaging (FCM).
+
+
+# OpenAI API Integration
+- Store user-selected subjects and generate relevant questions dynamically.
+
+- Cache AI-generated questions in Supabase to avoid unnecessary API calls.
+
+- Provide AI-generated detailed answers stored in Supabase for each question.
+
+# PWA & Performance
+- Ensure full PWA compliance (manifest.json, service workers).
+
+- Use Nuxt Image for optimized media delivery.
+
+- Implement lazy loading (lazy directive) and prefetching (nuxt-link with prefetch).
+
+- Optimize API calls with caching mechanisms.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
