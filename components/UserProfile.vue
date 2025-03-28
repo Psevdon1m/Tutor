@@ -5,6 +5,10 @@
         :src="userData?.avatar_url || 'https://placehold.co/400x400'"
         :alt="userData?.full_name || 'User'"
         class="w-12 h-12 rounded-full object-cover"
+        crossorigin="anonymous"
+        loading="lazy"
+        fetchpriority="high"
+        decoding="async"
       />
       <div>
         <p class="text-lg font-medium text-gray-900">

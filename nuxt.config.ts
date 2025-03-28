@@ -14,6 +14,7 @@ export default defineNuxtConfig({
     "@nuxt/eslint",
     "@nuxt/content",
     "@tailwindcss/postcss",
+    "@pinia/nuxt",
   ],
   vite: {
     plugins: [tailwindcss()],

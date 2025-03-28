@@ -10,78 +10,104 @@
     <UserProfile v-if="user" />
     <GoogleSignIn v-else />
 
-    <!-- Subjects Section -->
-    <h2 class="text-2xl font-semibold text-[#2a3538] mb-4 font-montserrat">
-      Subjects
-    </h2>
-    <div class="space-y-3 mb-12">
-      <button
-        v-for="(subject, index) in subjects"
-        :key="index"
-        :class="[
-          'w-full h-14 rounded-xl text-xl font-normal transition-opacity text-left pl-4',
-          selectedSubjects.includes(subject)
-            ? 'bg-[#5e9f95] text-white'
-            : 'bg-[#b1d1b1]  text-[#062431]',
-        ]"
-        @click="toggleSubject(subject)"
-      >
-        {{ subject }}
-      </button>
-    </div>
+    <SubjectsList
+      :subjects="subjectsStore.subjects"
+      @toggle-subject="submitForm.subjects = $event"
+    />
 
-    <!-- Notification Frequency Section -->
-    <h2 class="text-2xl font-semibold text-[#2a3538] mb-4 font-montserrat">
-      Notifications per day
-    </h2>
-    <div class="flex gap-3 mb-8">
-      <button
-        v-for="freq in frequencies"
-        :key="freq"
-        class="flex-1 py-2 px-4 border-2 border-gray-400 rounded-xl hover:bg-gray-50 transition-colors text-xl"
-        :class="{ 'border-gray-500 bg-gray-100': selectedFrequency === freq }"
-        @click="selectedFrequency = freq"
-      >
-        {{ freq }}
-      </button>
-    </div>
+    <NotificationSelector
+      :frequencies="frequencies"
+      @selected-frequency="submitForm.frequencies = $event"
+    />
 
     <!-- Get Questions Button -->
     <button
       class="w-full h-14 bg-[#5e9f95] text-white text-xl rounded-2xl hover:opacity-90 transition-opacity"
+      @click="savePreferences"
+      :disabled="!user || isSubmitting"
     >
-      Get Questions
+      {{ isSubmitting ? "Saving..." : "Subscribe to push notifications" }}
     </button>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useAuth } from "../composables/useAuth";
 import GoogleSignIn from "../components/GoogleSignIn.vue";
 import UserProfile from "../components/UserProfile.vue";
+import { useSubjectsStore } from "~/stores/subjects";
+import { useUserStore } from "~/stores/userStore";
+import type { AuthUser } from "@supabase/supabase-js";
+const submitForm = {
+  subjects: [] as string[],
+  frequencies: 2,
+};
 
-const subjects = ["Українська", "English", "TypeScript", "Node.JS"];
-const frequencies = ["1 time", "2 times", "3 times"];
-const selectedFrequency = ref("2 times");
-const selectedSubjects = ref<string[]>([]);
-
-const { signInWithGoogle } = useAuth();
+const subjectsStore = useSubjectsStore();
+const userStore = useUserStore();
+const frequencies = [1, 2, 3];
 const user = useSupabaseUser();
 
-const handleSignIn = async () => {
-  try {
-    await signInWithGoogle();
-  } catch (error) {
-    console.error("Sign in error:", error);
-  }
-};
+const supabase = useSupabaseClient<Database>();
+const isSubmitting = ref(false);
 
-const toggleSubject = (subject: string) => {
-  const index = selectedSubjects.value.indexOf(subject);
-  if (index === -1) {
-    selectedSubjects.value.push(subject);
-  } else {
-    selectedSubjects.value.splice(index, 1);
+interface Database {
+  public: {
+    Tables: {
+      user_preferences: {
+        Row: {
+          user_id: string;
+          subjects: string[];
+          notification_frequency: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          user_id: string;
+          subjects: string[];
+          notification_frequency: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+    };
+  };
+}
+
+// Fetch subjects when component mounts
+onMounted(async () => {
+  await subjectsStore.fetchSubjects();
+});
+
+async function savePreferences() {
+  if (!user.value) return;
+
+  isSubmitting.value = true;
+  try {
+    const { error } = await supabase.from("user_preferences").upsert({
+      user_id: user.value.id,
+      subjects: submitForm.subjects,
+      notification_frequency: submitForm.frequencies,
+      updated_at: new Date().toISOString(),
+    });
+
+    if (error) throw error;
+    console.log("Preferences saved successfully");
+  } catch (err) {
+    console.error("Error saving preferences:", err);
+  } finally {
+    isSubmitting.value = false;
   }
-};
+}
+watch(
+  user,
+  () => {
+    console.log("User changed:", user.value);
+
+    if (user.value) {
+      console.log("Fetching user preferences");
+      userStore.fetchUserPreferences(user.value.id);
+    }
+  },
+  { immediate: true }
+);
 </script>
