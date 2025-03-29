@@ -1,7 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 import process from "node:process";
 import tailwindcss from "@tailwindcss/vite";
-import iconsFile from "./public/PWAIcons/icons.json";
+import iconsFile from "./public/icons.json";
 
 const sw = process.env.SW === "true";
 
