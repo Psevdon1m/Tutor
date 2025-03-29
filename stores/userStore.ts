@@ -21,7 +21,7 @@ export const useUserStore = defineStore("userStore", {
 
         if (error) throw error;
 
-        this.userPreferences = data[0];
+        this.userPreferences = data[0] || null;
       } catch (err: unknown) {
         this.error = err instanceof Error ? err.message : "Unknown error";
         console.error("Error loading user preferences:", err);
@@ -31,6 +31,10 @@ export const useUserStore = defineStore("userStore", {
     },
   },
   getters: {
-    getUserPreferences: (state) => state.userPreferences,
+    getUserPreferences: (state) =>
+      state.userPreferences || {
+        subjects: [],
+        notification_frequency: null,
+      },
   },
 });

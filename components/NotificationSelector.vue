@@ -8,7 +8,7 @@
       v-for="freq in props.frequencies"
       :key="freq"
       class="flex-1 py-2 px-4 border-2 border-gray-400 rounded-xl hover:bg-gray-50 transition-colors text-xl"
-      :class="{ 'border-gray-500 bg-gray-100': selectedFrequency === freq }"
+      :class="{ 'border-gray-700 bg-gray-200': selectedFrequency === freq }"
       @click="
         selectedFrequency = freq;
         emit('selected-frequency', freq);
@@ -25,16 +25,17 @@ const userPreferences = computed(() => userStore.getUserPreferences);
 const props = defineProps<{
   frequencies: number[];
 }>();
+const emit = defineEmits<{
+  (e: "selected-frequency", frequency: number): void;
+}>();
+
+const selectedFrequency = ref<number | null>(null);
 
 onMounted(() => {
   if (userPreferences.value) {
     selectedFrequency.value = userPreferences.value.notification_frequency;
   }
 });
-const emit = defineEmits<{
-  (e: "selected-frequency", frequency: number): void;
-}>();
-const selectedFrequency = ref(2);
 
 watch(userPreferences, () => {
   if (userPreferences.value) {

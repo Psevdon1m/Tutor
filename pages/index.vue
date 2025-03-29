@@ -22,12 +22,16 @@
 
     <!-- Get Questions Button -->
     <button
-      v-if="shouldUpdatePreference"
+      v-if="
+        shouldUpdatePreference ||
+        shouldUpdateFrequency ||
+        userStore.getUserPreferences?.subjects.length === 0
+      "
       class="w-full h-14 bg-[#5e9f95] text-white text-xl rounded-2xl hover:opacity-90 transition-opacity"
       @click="savePreferences"
       :disabled="!user || isSubmitting"
     >
-      {{ isSubmitting ? "Saving..." : "Subscribe to push notifications" }}
+      {{ isSubmitting ? "Saving..." : buttonText }}
     </button>
     <button
       class="w-full h-14 bg-[#5e9f95] text-white text-xl rounded-2xl hover:opacity-90 transition-opacity"
@@ -40,6 +44,7 @@
 
 <script setup lang="ts">
 import type { Subject } from "~/types/db/subjects";
+import type { Database } from "~/types/database";
 import GoogleSignIn from "../components/GoogleSignIn.vue";
 import UserProfile from "../components/UserProfile.vue";
 import { useSubjectsStore } from "~/stores/subjects";
@@ -64,13 +69,28 @@ const toggleSubject = (subject: Subject) => {
     submitForm.value.subjects = {};
   }
   if (submitForm.value.subjects[subject.id]) {
-    debugger;
     delete submitForm.value.subjects[subject.id];
   } else {
-    debugger;
     submitForm.value.subjects[subject.id] = true;
   }
 };
+
+const buttonText = computed(() => {
+  if (userStore.getUserPreferences?.subjects.length === 0) {
+    return `Subscribe to push notifications`;
+  }
+  if (shouldUpdatePreference.value) {
+    return `Update subjects`;
+  }
+  if (
+    userStore.getUserPreferences?.notification_frequency &&
+    submitForm.value.frequencies !==
+      userStore.getUserPreferences?.notification_frequency
+  ) {
+    return `Update frequency`;
+  }
+  return `Go to questions`;
+});
 
 const shouldUpdatePreference = computed(() => {
   const storedPrefs = userStore.getUserPreferences;
@@ -78,44 +98,25 @@ const shouldUpdatePreference = computed(() => {
     return false;
   }
 
-  const currentKeys = Object.keys(submitForm.value.subjects);
-  const savedKeys = storedPrefs.subjects;
-  debugger;
+  const currentKeys = new Set(Object.keys(submitForm.value.subjects));
+  const savedKeys = new Set(storedPrefs.subjects);
 
-  if (currentKeys.length !== savedKeys.length) {
-    return true;
-  }
-  debugger;
-
-  return currentKeys.some((key) => !savedKeys.includes(key));
+  return (
+    currentKeys.size !== savedKeys.size ||
+    [...currentKeys].some((key) => !savedKeys.has(key))
+  );
 });
 
-interface Database {
-  public: {
-    Tables: {
-      user_preferences: {
-        Row: {
-          user_id: string;
-          subjects: string[];
-          notification_frequency: number;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          user_id: string;
-          subjects: string[];
-          notification_frequency: number;
-          created_at?: string;
-          updated_at?: string;
-        };
-      };
-    };
-  };
-}
+const shouldUpdateFrequency = computed(() => {
+  const storedPrefs = userStore.getUserPreferences;
+  if (!storedPrefs || !submitForm.value.frequencies) {
+    return false;
+  }
 
-// Fetch subjects when component mounts
-onMounted(async () => {
-  await subjectsStore.fetchSubjects();
+  return submitForm.value.frequencies !== storedPrefs.notification_frequency;
+});
+
+const updateCurrentUserSubjects = () => {
   if (userPreferences.value && userPreferences.value.subjects) {
     submitForm.value.subjects = userPreferences.value.subjects.reduce(
       (acc, subjectId) => {
@@ -124,7 +125,14 @@ onMounted(async () => {
       },
       {} as Record<string, boolean>
     );
+    submitForm.value.frequencies = userPreferences.value.notification_frequency;
   }
+};
+
+// Fetch subjects when component mounts
+onMounted(async () => {
+  await subjectsStore.fetchSubjects();
+  updateCurrentUserSubjects();
 });
 
 async function savePreferences() {
@@ -134,13 +142,15 @@ async function savePreferences() {
   try {
     const { error } = await supabase.from("user_preferences").upsert({
       user_id: user.value.id,
-      subjects: submitForm.value.subjects,
+      subjects: Object.keys(submitForm.value.subjects || []),
       notification_frequency: submitForm.value.frequencies,
       updated_at: new Date().toISOString(),
     });
 
     if (error) throw error;
     console.log("Preferences saved successfully");
+    userStore.fetchUserPreferences(user.value.id);
+    // updateCurrentUserSubjects();
   } catch (err) {
     console.error("Error saving preferences:", err);
   } finally {
