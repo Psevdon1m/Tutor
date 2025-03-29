@@ -6,12 +6,12 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const template = `
-importScripts(
-  "https://www.gstatic.com/firebasejs/9.x.x/firebase-app-compat.js"
-);
-importScripts(
-  "https://www.gstatic.com/firebasejs/9.x.x/firebase-messaging-compat.js"
-);
+// importScripts(
+//   "https://www.gstatic.com/firebasejs/9.x.x/firebase-app-compat.js"
+// );
+// importScripts(
+//   "https://www.gstatic.com/firebasejs/9.x.x/firebase-messaging-compat.js"
+// );
 
 firebase.initializeApp({
   apiKey: "${process.env.FIREBASE_API_KEY}",
