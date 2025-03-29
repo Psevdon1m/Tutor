@@ -14,9 +14,12 @@
         <p class="text-lg font-medium text-gray-900">
           {{ userData?.full_name }}
         </p>
-        <p class="text-sm text-gray-500">{{ userData?.email }}</p>
+        <p class="text-sm text-gray-500">
+          {{ makeShort(userData?.email || "", 6, 10) }}
+        </p>
       </div>
     </div>
+    <BellNotification :user="user" />
     <button
       @click="handleSignOut"
       class="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"

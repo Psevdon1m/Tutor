@@ -5,6 +5,5 @@
   "scripts": {
     "build": "npm run build --prefix frontend"
   },
-  "dependencies": {},
   "devDependencies": {}
 }
