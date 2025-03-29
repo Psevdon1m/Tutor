@@ -6,27 +6,31 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const template = `
+// importScripts(
+//   "https://www.gstatic.com/firebasejs/9.x.x/firebase-app-compat.js"
+// );
+// importScripts(
+//   "https://www.gstatic.com/firebasejs/9.x.x/firebase-messaging-compat.js"
+// );
 
-self.addEventListener('push', (event) => {
-  const payload = event.data?.json();
-  if (!payload) return;
-
-  event.waitUntil(
-    self.registration.showNotification(payload.notification.title, {
-      body: payload.notification.body,
-      icon: "/Tutor/favicon-32x32.png",
-      badge: "/Tutor/favicon-32x32.png",
-      data: payload.data
-    })
-  );
+firebase.initializeApp({
+  apiKey: "${process.env.FIREBASE_API_KEY}",
+  authDomain: "${process.env.FIREBASE_AUTH_DOMAIN}",
+  projectId: "${process.env.FIREBASE_PROJECT_ID}",
+  messagingSenderId: "${process.env.FIREBASE_MESSAGING_SENDER_ID}",
+  appId: "${process.env.FIREBASE_APP_ID}"
 });
 
-self.addEventListener('notificationclick', (event) => {
-  event.notification.close();
-  
-  event.waitUntil(
-    clients.openWindow('/Tutor/')
-  );
+const messaging = firebase.messaging();
+
+messaging.onBackgroundMessage((payload) => {
+  const notificationTitle = payload.notification.title;
+  const notificationOptions = {
+    body: payload.notification.body,
+    icon: "/Tutor/favicon-32x32.png",
+  };
+
+  self.registration.showNotification(notificationTitle, notificationOptions);
 });
 `;
 

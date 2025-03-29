@@ -1,34 +1,29 @@
 import { initializeApp } from "firebase/app";
 import { getMessaging, getToken, onMessage } from "firebase/messaging";
 
-export const useFirebase = () => {
-  const config = useRuntimeConfig();
-  const firebaseConfig = {
-    apiKey: config.public.FIREBASE_API_KEY,
-    authDomain: config.public.FIREBASE_AUTH_DOMAIN,
-    projectId: config.public.FIREBASE_PROJECT_ID,
-    messagingSenderId: config.public.FIREBASE_MESSAGING_SENDER_ID,
-    appId: config.public.FIREBASE_APP_ID,
-  };
+const config = useRuntimeConfig();
+const firebaseConfig = {
+  apiKey: config.public.FIREBASE_API_KEY as string,
+  authDomain: config.public.FIREBASE_AUTH_DOMAIN as string,
+  projectId: config.public.FIREBASE_PROJECT_ID as string,
+  storageBucket: config.public.FIREBASE_STORAGE_BUCKET as string,
+  messagingSenderId: config.public.FIREBASE_MESSAGING_SENDER_ID as string,
+  appId: config.public.FIREBASE_APP_ID as string,
+  measurementId: config.public.FIREBASE_MEASUREMENT_ID as string,
+};
 
+export const useFirebase = () => {
   const app = initializeApp(firebaseConfig);
   const messaging = getMessaging(app);
+  const vapidKey = useRuntimeConfig().public.vapidKey as string;
 
   const requestPermission = async () => {
     try {
       const permission = await Notification.requestPermission();
       if (permission === "granted") {
-        // Register service worker first
-        const registration = await navigator.serviceWorker.register(
-          "/Tutor/firebase-messaging-sw.js"
-        );
-
-        // Get FCM token
         const token = await getToken(messaging, {
-          vapidKey: config.public.vapidKey,
-          serviceWorkerRegistration: registration,
+          vapidKey: vapidKey as string,
         });
-
         return token;
       }
       throw new Error("Notification permission denied");
