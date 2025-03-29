@@ -119,7 +119,7 @@ const shouldUpdateFrequency = computed(() => {
 const updateCurrentUserSubjects = () => {
   if (userPreferences.value && userPreferences.value.subjects) {
     submitForm.value.subjects = userPreferences.value.subjects.reduce(
-      (acc, subjectId) => {
+      (acc: Record<string, boolean>, subjectId: string) => {
         acc[subjectId] = true;
         return acc;
       },

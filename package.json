@@ -1,36 +1,8 @@
 {
-  "name": "nuxt-app",
+  "name": "TutorAI",
   "private": true,
   "type": "module",
-  "scripts": {
-    "build": "nuxt build",
-    "dev": "nuxt dev --host",
-    "generate": "nuxt generate",
-    "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
-  },
-  "dependencies": {
-    "@nuxt/content": "^3.4.0",
-    "@nuxt/eslint": "^1.2.0",
-    "@nuxtjs/supabase": "^1.5.0",
-    "@pinia/nuxt": "^0.10.1",
-    "@tailwindcss/postcss": "^4.0.17",
-    "@tailwindcss/vite": "^4.0.17",
-    "@vueuse/core": "^13.0.0",
-    "eslint": "^9.23.0",
-    "nuxt": "^3.16.1",
-    "openai": "^4.90.0",
-    "pinia": "^3.0.1",
-    "postcss": "^8.5.3",
-    "tailwindcss": "^4.0.17",
-    "typescript": "^5.8.2",
-    "vue": "^3.5.13",
-    "vue-router": "^4.5.0"
-  },
-  "devDependencies": {
-    "@vite-pwa/nuxt": "^0.10.8"
-  },
-  "overrides": {
-    "cookie": "1.0.2"
-  }
+  "scripts": {},
+  "dependencies": {},
+  "devDependencies": {}
 }
