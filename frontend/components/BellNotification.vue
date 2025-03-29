@@ -39,12 +39,14 @@
 
 <script setup lang="ts">
 import type { User } from "@supabase/supabase-js";
+import type { Database } from "~/types/database";
 const props = defineProps<{
   user: User | null;
 }>();
 const isSubscribing = ref(false);
 const isSubscribed = ref(false);
 const { requestPermission } = useFirebase();
+const supabase = useSupabaseClient<Database>();
 
 const subscribeToNotifications = async () => {
   isSubscribing.value = true;

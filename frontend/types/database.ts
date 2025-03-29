@@ -8,6 +8,7 @@ export interface Database {
           notification_frequency: number;
           created_at: string;
           updated_at: string;
+          fcm_token: string;
         };
         Insert: {
           user_id: string;
@@ -15,6 +16,7 @@ export interface Database {
           notification_frequency: number;
           created_at?: string;
           updated_at?: string;
+          fcm_token?: string;
         };
       };
     };
