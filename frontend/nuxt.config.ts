@@ -44,6 +44,7 @@ export default defineNuxtConfig({
         { name: "description", content: "AI-powered Tutor PWA" },
       ],
     },
+    baseURL: "/Tutor/",
   },
   // @ts-ignore
   pwa: {
