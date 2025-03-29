@@ -21,9 +21,15 @@ export const useFirebase = () => {
     try {
       const permission = await Notification.requestPermission();
       if (permission === "granted") {
+        const registration = await navigator.serviceWorker.register(
+          "/Tutor/firebase-messaging-sw.js"
+        );
+
         const token = await getToken(messaging, {
-          vapidKey: vapidKey as string,
+          vapidKey: vapidKey,
+          serviceWorkerRegistration: registration,
         });
+
         return token;
       }
       throw new Error("Notification permission denied");
