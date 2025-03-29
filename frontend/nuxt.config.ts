@@ -1,6 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 import process from "node:process";
 import tailwindcss from "@tailwindcss/vite";
+import iconsFile from "./public/PWAIcons/icons.json";
 
 const sw = process.env.SW === "true";
 
@@ -58,24 +59,7 @@ export default defineNuxtConfig({
       description: "AI-powered Tutor Application",
       theme_color: "#ffffff",
       background_color: "#ffffff",
-      icons: [
-        {
-          src: "/PWAIcons/pwa-192x192.png",
-          sizes: "192x192",
-          type: "image/png",
-        },
-        {
-          src: "/PWAIcons/pwa-512x512.png",
-          sizes: "512x512",
-          type: "image/png",
-        },
-        {
-          src: "/PWAIcons/pwa-512x512.png",
-          sizes: "512x512",
-          type: "image/png",
-          purpose: "any maskable",
-        },
-      ],
+      icons: iconsFile.icons,
     },
   },
   // @ts-ignore
