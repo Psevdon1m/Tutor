@@ -47,6 +47,7 @@ const isSubscribing = ref(false);
 const isSubscribed = ref(false);
 const { requestPermission } = useFirebase();
 const supabase = useSupabaseClient<Database>();
+const userStore = useUserStore();
 
 const subscribeToNotifications = async () => {
   isSubscribing.value = true;
@@ -54,11 +55,12 @@ const subscribeToNotifications = async () => {
     const token = await requestPermission();
     if (token) {
       // Save the token to your Supabase user_preferences table
-      //@ts-ignore
+
       const { error } = await supabase.from("user_preferences").upsert({
         user_id: props.user?.id,
         fcm_token: token,
         updated_at: new Date().toISOString(),
+        subjects: userStore.getUserPreferences.subjects,
       });
 
       if (error) throw error;
