@@ -34,14 +34,16 @@ export const useFirebase = () => {
           serviceWorkerRegistration: registration,
         });
         localStorage.setItem("fcm_token", token);
-
+        alert("Notification permission granted");
         return token;
       }
       localStorage.removeItem("fcm_token");
+      alert("Notification permission denied");
       throw new Error("Notification permission denied");
     } catch (error) {
       console.error("Error getting permission:", error);
       localStorage.removeItem("fcm_token");
+      alert("Error getting permission");
       throw error;
     }
   };
@@ -53,10 +55,10 @@ export const useFirebase = () => {
         payload.notification?.title &&
         payload.notification?.body
       ) {
-        new Notification(payload.notification.title, {
-          body: payload.notification.body,
-          icon: "/Tutor/favicon-32x32.png",
-        });
+        // new Notification(payload.notification.title, {
+        //   body: payload.notification.body,
+        //   icon: "/Tutor/favicon-32x32.png",
+        // });
       }
       callback(payload);
     });
