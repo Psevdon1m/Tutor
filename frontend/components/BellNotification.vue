@@ -1,6 +1,6 @@
 <template>
   <button
-    @click="subscribeToNotifications"
+    @click="handleNotificationSubscription"
     :disabled="isSubscribing"
     class="relative p-3 rounded-full hover:bg-gray-100 transition-colors"
     :title="
@@ -45,9 +45,17 @@ const props = defineProps<{
 }>();
 const isSubscribing = ref(false);
 const isSubscribed = localStorage.getItem("fcm_token") ? ref(true) : ref(false);
-const { requestPermission } = useFirebase();
+const { requestPermission, onMessageReceived } = useFirebase();
 const supabase = useSupabaseClient<Database>();
 const userStore = useUserStore();
+
+const handleNotificationSubscription = async () => {
+  if (isSubscribed.value) {
+    await unsubscribeFromNotifications();
+  } else {
+    await subscribeToNotifications();
+  }
+};
 
 const subscribeToNotifications = async () => {
   isSubscribing.value = true;
@@ -94,4 +102,13 @@ const unsubscribeFromNotifications = async () => {
     isSubscribing.value = false;
   }
 };
+
+onMounted(() => {
+  onMessageReceived((payload) => {
+    console.log("New message received:", payload);
+    // You could update your notifications list here
+    // Or show a toast notification
+    // Or trigger a UI update
+  });
+});
 </script>
