@@ -48,24 +48,12 @@ export const useFirebase = () => {
     }
   };
 
-  const onMessageReceived = (callback: (payload: any) => void) => {
-    return onMessage(messaging, (payload) => {
-      if (
-        Notification.permission === "granted" &&
-        payload.notification?.title &&
-        payload.notification?.body
-      ) {
-        // new Notification(payload.notification.title, {
-        //   body: payload.notification.body,
-        //   icon: "/Tutor/favicon-32x32.png",
-        // });
-      }
-      callback(payload);
-    });
-  };
+  onMessage(messaging, (payload) => {
+    console.log("Message received. ", payload);
+    // ...
+  });
 
   return {
     requestPermission,
-    onMessageReceived,
   };
 };

@@ -45,7 +45,7 @@ const props = defineProps<{
 }>();
 const isSubscribing = ref(false);
 const isSubscribed = localStorage.getItem("fcm_token") ? ref(true) : ref(false);
-const { requestPermission, onMessageReceived } = useFirebase();
+const { requestPermission } = useFirebase();
 const supabase = useSupabaseClient<Database>();
 const userStore = useUserStore();
 
@@ -102,13 +102,4 @@ const unsubscribeFromNotifications = async () => {
     isSubscribing.value = false;
   }
 };
-
-onMounted(() => {
-  onMessageReceived((payload) => {
-    console.log("New message received:", payload);
-    // You could update your notifications list here
-    // Or show a toast notification
-    // Or trigger a UI update
-  });
-});
 </script>
