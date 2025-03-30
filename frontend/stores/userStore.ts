@@ -29,6 +29,9 @@ export const useUserStore = defineStore("userStore", {
         this.loading = false;
       }
     },
+    resetUserPreferences() {
+      this.userPreferences = null;
+    },
   },
   getters: {
     getUserPreferences: (state) =>
