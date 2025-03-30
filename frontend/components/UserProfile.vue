@@ -56,7 +56,9 @@ const userData = ref<UserProfile | null>(
 const handleSignOut = async () => {
   try {
     const { error } = await supabase.auth.signOut();
+
     if (error) throw error;
+    localStorage.removeItem("fcm_token");
     // Nuxt will automatically handle the navigation when user is signed out
   } catch (error) {
     console.error("Error signing out:", error);
