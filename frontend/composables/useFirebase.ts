@@ -25,16 +25,23 @@ export const useFirebase = () => {
           "/Tutor/firebase-messaging-sw.js"
         );
 
+        const savedToken = localStorage.getItem("fcm_token");
+        if (savedToken) {
+          return savedToken;
+        }
         const token = await getToken(messaging, {
           vapidKey: vapidKey,
           serviceWorkerRegistration: registration,
         });
+        localStorage.setItem("fcm_token", token);
 
         return token;
       }
+      localStorage.removeItem("fcm_token");
       throw new Error("Notification permission denied");
     } catch (error) {
       console.error("Error getting permission:", error);
+      localStorage.removeItem("fcm_token");
       throw error;
     }
   };

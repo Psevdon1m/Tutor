@@ -44,7 +44,7 @@ const props = defineProps<{
   user: User | null;
 }>();
 const isSubscribing = ref(false);
-const isSubscribed = ref(false);
+const isSubscribed = localStorage.getItem("fcm_token") ? ref(true) : ref(false);
 const { requestPermission } = useFirebase();
 const supabase = useSupabaseClient<Database>();
 const userStore = useUserStore();
@@ -69,6 +69,27 @@ const subscribeToNotifications = async () => {
     }
   } catch (error) {
     console.error("Error subscribing to notifications:", error);
+  } finally {
+    isSubscribing.value = false;
+  }
+};
+const unsubscribeFromNotifications = async () => {
+  isSubscribing.value = true;
+  try {
+    const { error } = await supabase
+      .from("user_preferences")
+      .update({
+        fcm_token: null,
+        updated_at: new Date().toISOString(),
+        subjects: userStore.getUserPreferences.subjects,
+      })
+      .eq("user_id", props.user?.id);
+    localStorage.removeItem("fcm_token");
+    if (error) throw error;
+    console.log("Successfully unsubscribed from notifications");
+    isSubscribed.value = false;
+  } catch (error) {
+    console.error("Error unsubscribing from notifications:", error);
   } finally {
     isSubscribing.value = false;
   }
