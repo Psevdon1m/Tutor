@@ -48,12 +48,15 @@ export const useFirebase = () => {
     }
   };
 
-  onMessage(messaging, (payload) => {
-    console.log("Message received. ", payload);
-    // ...
-  });
+  const onMessageReceived = (callback: (payload: any) => void) => {
+    return onMessage(messaging, (payload) => {
+      alert(`Message received: ${JSON.stringify(payload)}`);
+      callback(payload);
+    });
+  };
 
   return {
     requestPermission,
+    onMessageReceived,
   };
 };
