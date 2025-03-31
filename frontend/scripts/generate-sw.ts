@@ -26,7 +26,7 @@ const messaging = firebase.messaging();
 
 // messaging.onBackgroundMessage(function(payload) {
   // console.log("Message received 3. ", payload);
-  // const notificationTitle = payload.notification.title + " sw";
+  // const notificationTitle = payload.notification.title;
   // const notificationOptions = {
   //   body: payload.notification.body,
   //   icon: "/Tutor/favicon-32x32.png",

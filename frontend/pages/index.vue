@@ -159,12 +159,10 @@ async function savePreferences() {
 }
 watch(
   user,
-  () => {
-    console.log("User changed:", user.value);
-
-    if (user.value) {
-      console.log("Fetching user preferences");
-      userStore.fetchUserPreferences(user.value.id);
+  (newUser, oldUser) => {
+    if (newUser?.id !== oldUser?.id && newUser) {
+      console.log("User changed, fetching preferences");
+      userStore.fetchUserPreferences(newUser.id);
     }
   },
   { immediate: true }
