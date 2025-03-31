@@ -22,9 +22,9 @@ firebase.initializeApp({
 });
 
 
-const messaging = firebase.messaging();
+// const messaging = firebase.messaging();
 
-messaging.onBackgroundMessage(function(payload) {
+// messaging.onBackgroundMessage(function(payload) {
   // console.log("Message received 3. ", payload);
   // const notificationTitle = payload.notification.title + " sw";
   // const notificationOptions = {
@@ -45,7 +45,7 @@ messaging.onBackgroundMessage(function(payload) {
   // };
 
   // return self.registration.showNotification(notificationTitle, notificationOptions);
-});
+// });
 
 
 `;
