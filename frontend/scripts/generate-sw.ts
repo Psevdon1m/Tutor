@@ -21,29 +21,28 @@ firebase.initializeApp({
   appId: "${process.env.FIREBASE_APP_ID}"
 });
 
-console.log({firebase});
 
 const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage(function(payload) {
-  console.log("Message received 3. ", payload);
-  const notificationTitle = payload.notification.title + " sw";
-  const notificationOptions = {
-    body: payload.notification.body,
-    icon: "/Tutor/favicon-32x32.png",
-    badge: "/Tutor/favicon-32x32.png",
-    data: payload.data,
-    tag: 'tutor-notification',
-    renotify: false,
-    requireInteraction: true,
-    vibrate: [200, 100, 200],
-    actions: [
-      {
-        action: "open",
-        title: "Open App",
-      },
-    ],
-  };
+  // console.log("Message received 3. ", payload);
+  // const notificationTitle = payload.notification.title + " sw";
+  // const notificationOptions = {
+  //   body: payload.notification.body,
+  //   icon: "/Tutor/favicon-32x32.png",
+  //   badge: "/Tutor/favicon-32x32.png",
+  //   data: payload.data,
+  //   tag: 'tutor-notification',
+  //   renotify: false,
+  //   requireInteraction: true,
+  //   vibrate: [200, 100, 200],
+  //   actions: [
+  //     {
+  //       action: "open",
+  //       title: "Open App",
+  //     },
+  //   ],
+  // };
 
   // return self.registration.showNotification(notificationTitle, notificationOptions);
 });
