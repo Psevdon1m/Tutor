@@ -23,7 +23,7 @@ firebase.initializeApp({
 
 
 const messaging = firebase.messaging();
-
+//comented out as it will cause duplicate notifications
 // messaging.onBackgroundMessage(function(payload) {
   // console.log("Message received 3. ", payload);
   // const notificationTitle = payload.notification.title;
