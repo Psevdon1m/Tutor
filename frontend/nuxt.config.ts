@@ -83,6 +83,7 @@ export default defineNuxtConfig({
       name: "Tutor PWA",
       short_name: "Tutor",
       id: "/Tutor/",
+      start_url: "https://psevdon1m.github.io/Tutor/",
       description: "AI-powered Tutor Application",
       theme_color: "#ffffff",
       background_color: "#ffffff",
