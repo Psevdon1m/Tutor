@@ -38,7 +38,7 @@ const closeNotification = () => {
 
 onMounted(() => {
   onMessageReceived((payload) => {
-    console.log("Message received. ", payload);
+    console.log("Message received 2. ", payload);
     if (payload.notification) {
       showNotification(
         payload.notification.title || "",
