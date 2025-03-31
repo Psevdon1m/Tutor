@@ -121,6 +121,7 @@ export class SchedulerService {
       const randomSubjectIndex = Math.floor(
         Math.random() * userPref.subjects.length
       );
+      console.log({ randomSubjectIndex });
       const subjectId = userPref.subjects[randomSubjectIndex];
 
       // Get the subject name from the subjects table
@@ -208,21 +209,26 @@ export class SchedulerService {
     data: any
   ) {
     try {
+      // Get OAuth 2.0 access token - this requires setting up Google Application Default Credentials
+      const accessToken = await this.getAccessToken();
+
       const response = await fetch(
         "https://fcm.googleapis.com/v1/projects/tutor-bd76b/messages:send",
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${process.env.FIREBASE_SERVER_KEY}`,
+            Authorization: `Bearer ${accessToken}`,
           },
           body: JSON.stringify({
-            to: token,
-            notification: {
-              title,
-              body,
+            message: {
+              token: token, // Use token instead of 'to'
+              notification: {
+                title,
+                body,
+              },
+              data: this.transformData(data),
             },
-            data,
           }),
         }
       );
@@ -238,5 +244,38 @@ export class SchedulerService {
     } catch (error) {
       console.error("Error sending push notification:", error);
     }
+  }
+
+  // Helper method to transform nested data (if needed)
+  private transformData(data: any): Record<string, string> {
+    const result: Record<string, string> = {};
+
+    // Convert all values to strings, and handle nested objects
+    for (const key in data) {
+      if (typeof data[key] === "object") {
+        // HTTP v1 API doesn't support nested JSON values, convert to string
+        result[key] = JSON.stringify(data[key]);
+      } else {
+        // Convert all values to strings
+        result[key] = String(data[key]);
+      }
+    }
+
+    return result;
+  }
+
+  // Get OAuth access token using Google Application Default Credentials
+  private async getAccessToken(): Promise<string> {
+    // This is a simple implementation using the google-auth-library package
+    // You'll need to add this package to your dependencies
+    const { GoogleAuth } = require("google-auth-library");
+
+    const auth = new GoogleAuth({
+      scopes: "https://www.googleapis.com/auth/firebase.messaging",
+    });
+
+    const client = await auth.getClient();
+    const accessToken = await client.getAccessToken();
+    return accessToken.token;
   }
 }

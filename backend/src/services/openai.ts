@@ -41,9 +41,9 @@ Generate questions and answers that:
       Exclude<Subject, "Ukrainian">,
       string
     > = {
-      English: `${basePrompt} English language. Focus on grammar, vocabulary, and practical usage. Generate questions that test understanding of English language concepts.`,
-      "Node.js": `${basePrompt} Node.js development. Focus on best practices, common patterns, and real-world scenarios. Generate questions about Node.js concepts, APIs, and problem-solving.`,
-      TypeScript: `${basePrompt} TypeScript programming. Focus on type system, interfaces, and TypeScript-specific features. Generate questions about TypeScript concepts and practical usage.`,
+      English: `${basePrompt} English language. Focus on grammar, vocabulary, and practical usage. Generate questions that test understanding of English language concepts. Help students prepare for IELTS exam C1 level.`,
+      "Node.js": `${basePrompt} Node.js development. Focus on best practices, common patterns, and real-world scenarios. Generate questions about Node.js concepts, APIs, and problem-solving. Help students prepare for Node.js technical interview.`,
+      TypeScript: `${basePrompt} TypeScript programming. Focus on type system, interfaces, and TypeScript-specific features. Generate questions about TypeScript concepts and practical usage. Help students prepare for TypeScript technical interview.`,
     };
 
     // Since we already handled Ukrainian case above, we can return directly
@@ -64,16 +64,18 @@ Generate questions and answers that:
         model: "gpt-4o",
         input: [
           {
-            role: "system",
+            role: "developer",
             content: systemPrompt,
           },
           {
             role: "user",
             content:
-              "Generate a challenging question and its detailed answer based on the provided content. Format the response as JSON with 'question' and 'answer' fields.",
+              "Generate a challenging question and its detailed answer. Format the response as JSON with 'question' and 'answer' fields.",
           },
         ],
       });
+      console.log({ prompt: systemPrompt });
+      console.log({ output_text: response.output_text });
 
       const result = parseResponseJson(response.output_text);
 
