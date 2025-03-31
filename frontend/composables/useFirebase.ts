@@ -1,5 +1,10 @@
 import { initializeApp } from "firebase/app";
-import { getMessaging, getToken, onMessage } from "firebase/messaging";
+import {
+  getMessaging,
+  getToken,
+  onMessage,
+  type MessagePayload,
+} from "firebase/messaging";
 
 const config = useRuntimeConfig();
 const firebaseConfig = {
@@ -48,9 +53,10 @@ export const useFirebase = () => {
     }
   };
 
-  const onMessageReceived = (callback: (payload: any) => void) => {
+  const onMessageReceived = (callback: (payload: MessagePayload) => void) => {
     return onMessage(messaging, (payload) => {
-      alert(`Message received: ${JSON.stringify(payload)}`);
+      console.log("Message received. ", payload);
+      // Update the UI to include the received message.
       callback(payload);
     });
   };

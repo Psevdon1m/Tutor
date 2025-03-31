@@ -21,17 +21,18 @@ firebase.initializeApp({
   appId: "${process.env.FIREBASE_APP_ID}"
 });
 
-// const messaging = firebase.messaging();
+const messaging = firebase.messaging();
 
-// messaging.onBackgroundMessage((payload) => {
-//   const notificationTitle = payload.notification.title;
-//   const notificationOptions = {
-//     body: payload.notification.body,
-//     icon: "/Tutor/favicon-32x32.png",
-//   };
+messaging.onBackgroundMessage(function(payload) => {
+  const notificationTitle = payload.notification.title;
+  const notificationOptions = {
+    body: payload.notification.body,
+    icon: "/Tutor/favicon-32x32.png",
+  };
 
-//   self.registration.showNotification(notificationTitle, notificationOptions);
-// });
+  self.registration.showNotification(notificationTitle, notificationOptions);
+});
+
 `;
 
 // Write to public directory
