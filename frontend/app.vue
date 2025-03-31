@@ -41,7 +41,7 @@ onMounted(() => {
     console.log("Message received 2. ", payload);
     if (payload.notification) {
       showNotification(
-        payload.notification.title || "",
+        payload.notification.title + " app.vue" || "",
         payload.notification.body || ""
       );
     }
