@@ -1,6 +1,7 @@
 {
   "name": "Tutor App",
   "short_name": "Tutor",
+  "id": "/Tutor/",
   "icons": [
     {
       "src": "/Tutor/android-chrome-192x192.png",
