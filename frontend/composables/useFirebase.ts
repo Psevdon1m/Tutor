@@ -54,9 +54,11 @@ export const useFirebase = () => {
 
   const onMessageReceived = (callback: (payload: MessagePayload) => void) => {
     return onMessage(messaging, (payload) => {
-      console.log("Message received 1. ", payload);
-      // Update the UI to include the received message.
-      callback(payload);
+      // Only handle the message if we're in the foreground
+      if (document.visibilityState === "visible") {
+        callback(payload);
+      }
+      // service worker handle background notifications
     });
   };
 
