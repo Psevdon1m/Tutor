@@ -22,7 +22,7 @@ firebase.initializeApp({
 });
 
 
-// const messaging = firebase.messaging();
+const messaging = firebase.messaging();
 
 // messaging.onBackgroundMessage(function(payload) {
   // console.log("Message received 3. ", payload);
