@@ -9,14 +9,14 @@
   >
     <div
       v-if="show"
-      class="fixed top-4 right-4 max-w-sm w-full bg-white shadow-lg rounded-lg pointer-events-auto ring-1 ring-black ring-opacity-5 overflow-hidden z-50"
+      class="fixed top-4 left-4 max-w-sm w-90 bg-white shadow-lg rounded-lg pointer-events-auto ring-2 ring-gray-400 ring-opacity-5 overflow-hidden z-50"
     >
       <div class="p-4">
         <div class="flex items-start">
           <div class="flex-shrink-0">
             <img
               class="h-10 w-10 rounded-full"
-              src="/favicon-32x32.png"
+              src="/android-chrome-192x192.png"
               alt="Tutor"
             />
           </div>
