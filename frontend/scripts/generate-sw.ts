@@ -23,6 +23,36 @@ firebase.initializeApp({
 
 
 const messaging = firebase.messaging();
+
+// This would go in your firebase-messaging-sw.js file
+self.addEventListener("notificationclick", function (event) {
+  const notification = event.notification;
+  const data = notification.data;
+
+  // Close the notification
+  event.notification.close();
+  
+  // Open the question detail page if question_id is available
+  if (data && data.question_id) {
+    const url = '/questions/' + data.question_id;
+    
+    event.waitUntil(
+      clients.matchAll({type: 'window'}).then(clientList => {
+        // Check if there is already a window/tab open with the target URL
+        for (const client of clientList) {
+          if (client.url === url && 'focus' in client) {
+            return client.focus();
+          }
+        }
+        // If no window/tab is open, open a new one
+        if (clients.openWindow) {
+          return clients.openWindow(url);
+        }
+      })
+    );
+  }
+});
+
 //comented out as it will cause duplicate notifications
 // messaging.onBackgroundMessage(function(payload) {
   // console.log("Message received 3. ", payload);
