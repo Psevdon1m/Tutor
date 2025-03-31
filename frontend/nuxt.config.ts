@@ -82,6 +82,7 @@ export default defineNuxtConfig({
     manifest: {
       name: "Tutor PWA",
       short_name: "Tutor",
+      id: "/Tutor/",
       description: "AI-powered Tutor Application",
       theme_color: "#ffffff",
       background_color: "#ffffff",
