@@ -1,1 +1,3 @@
 backend/src/assets/knowledge-base/source.pdf
+backend/.env
+backend/node_modules

@@ -4,72 +4,78 @@ import { parseResponseJson } from "../utils/json-parser";
 
 export class OpenAIService {
   private openai: OpenAI;
+  private ukrainianPdfUrl: string;
 
   constructor() {
     this.openai = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY,
     });
+    // URL to the Ukrainian PDF file - replace with your actual hosted PDF URL
+    this.ukrainianPdfUrl =
+      process.env.UKRAINIAN_PDF_URL ||
+      "https://shron1.chtyvo.org.ua/Serbenska_Oleksandra/Antysurzhyk_Vchymosia_vvichlyvo_povodytys_i_pravylno_hovoryty.pdf?";
   }
 
-  private getSystemPrompt(subject: Subject): string {
+  /**
+   * Gets the system prompt for a subject, including PDF URL for Ukrainian
+   */
+  private getSystemPromptWithContent(subject: Subject): string {
     const basePrompt = "You are an experienced tutor specializing in";
 
-    const subjectSpecificPrompts: Record<Subject, string> = {
-      Ukrainian: `${basePrompt} Ukrainian language. Focus on purification of vocabulary, grammar, and cultural context that would help students to speak natively Ukrainian and not mix it with russian (known as "russian loanwords", "russianisms" or "Surzhyk"). Generate questions that help students correctly speak Ukrainian using only Ukrainian words and not "russian loanwords", "russianisms" or "Surzhyk".
-      Examples of words: 
-      wrong - інакший, correct – інший;
-      wrong - получати, correct – отримувати;
-      wrong - хотя, correct – хоча;
-      wrong - помниш, correct – пам'ятаєш;
-      wrong - підстроюватися, correct – підлаштовуватися;
-      wrong - все рівно, correct – все одно.
-       Both question and answer should be in Ukrainian. 
-      Answers should be concise with an example of usage of the word in context without any additional comments about why it is important to use Ukrainian words and not russian or Surzhyk. `,
-      English: `${basePrompt} English language. Focus on purification of vocabulary, grammar, and practical usage. Generate questions that test understanding of English language concepts. Both question and answer should be in English.`,
-      "Node.js": `${basePrompt} Node.js development. Focus on best practices, common patterns, and real-world scenarios. Generate questions about Node.js concepts, APIs, and problem-solving. Both question and answer should be in English.`,
-      TypeScript: `${basePrompt} TypeScript programming. Focus on type system, interfaces, and TypeScript-specific features. Generate questions about TypeScript concepts and practical usage. Both question and answer should be in English.`,
+    // For Ukrainian, include the PDF URL
+    if (subject === "Ukrainian") {
+      return `${basePrompt} Ukrainian language. Focus on grammar, vocabulary, and cultural context.
+      
+Please analyze surzhyk words from this list: ${this.ukrainianPdfUrl} and their correct translation in Ukrainian. Each pair is divided by '-' sign
+Example: резина – ґума.
+First word is surzhyk word, second is correct translation in Ukrainian.
+Generate questions and answers that:
+-  help students purify Ukrainian language from surzhyk words
+- give examples of how to use ukrainian words instead of russian words or russian loanwords.
+- most used russian words, loanwords or surzhyk  should have correct translation in Ukrainian.
+ Both questions and answers should be in Ukrainian.`;
+    }
+
+    // For other subjects, use the standard prompts
+    const subjectSpecificPrompts: Record<
+      Exclude<Subject, "Ukrainian">,
+      string
+    > = {
+      English: `${basePrompt} English language. Focus on grammar, vocabulary, and practical usage. Generate questions that test understanding of English language concepts.`,
+      "Node.js": `${basePrompt} Node.js development. Focus on best practices, common patterns, and real-world scenarios. Generate questions about Node.js concepts, APIs, and problem-solving.`,
+      TypeScript: `${basePrompt} TypeScript programming. Focus on type system, interfaces, and TypeScript-specific features. Generate questions about TypeScript concepts and practical usage.`,
     };
 
-    return subjectSpecificPrompts[subject];
+    // Since we already handled Ukrainian case above, we can return directly
+    return subjectSpecificPrompts[subject as Exclude<Subject, "Ukrainian">];
   }
 
+  /**
+   * Generates a question and answer based on subject, using PDF URL for Ukrainian
+   */
   async generateQuestion(
-    subject: Subject,
-    previous_response_id?: string
+    subject: Subject
   ): Promise<{ question: string; answer: string; response_id: string }> {
     try {
-      // Create the input messages
-      const input = [
-        {
-          role: "system",
-          content: this.getSystemPrompt(subject),
-        },
-        {
-          role: "user",
-          content:
-            "Generate a challenging question and its detailed answer. The response MUST be valid JSON with exactly two fields: 'question' and 'answer'.",
-        },
-      ];
+      // Get the appropriate prompt with content
+      const systemPrompt = this.getSystemPromptWithContent(subject);
 
-      // Create the API call parameters
-      const params: any = {
+      const response = await this.openai.responses.create({
         model: "gpt-4o",
-        input,
-      };
+        input: [
+          {
+            role: "system",
+            content: systemPrompt,
+          },
+          {
+            role: "user",
+            content:
+              "Generate a challenging question and its detailed answer based on the provided content. Format the response as JSON with 'question' and 'answer' fields.",
+          },
+        ],
+      });
 
-      // Add previous_response_id if provided
-      if (previous_response_id) {
-        params.previous_response_id = previous_response_id;
-      }
-
-      // Make the API call
-      const response = await this.openai.responses.create(params);
-
-      // Process the response
-
-      const messageContent = response.output_text || "{}";
-
-      const result = parseResponseJson(messageContent);
+      const result = parseResponseJson(response.output_text);
 
       if (!result.question || !result.answer) {
         throw new Error("Invalid response format from OpenAI");
