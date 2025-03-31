@@ -1,17 +1,19 @@
 import fs from "fs";
 import path from "path";
 import dotenv from "dotenv";
-import { initializeApp } from "firebase/app";
-import { getMessaging, onBackgroundMessage } from "firebase/messaging/sw";
 
 // Load environment variables
 dotenv.config();
 
 const template = `
-import { initializeApp } from 'firebase/app';
-import { getMessaging, onBackgroundMessage } from 'firebase/messaging/sw';
+importScripts(
+  "https://www.gstatic.com/firebasejs/9.2.0/firebase-app-compat.js"
+);
+importScripts(
+  "https://www.gstatic.com/firebasejs/9.2.0/firebase-messaging-compat.js"
+);
 
-const firebaseApp = initializeApp({
+firebase.initializeApp({
   apiKey: "${process.env.FIREBASE_API_KEY}",
   authDomain: "${process.env.FIREBASE_AUTH_DOMAIN}",
   projectId: "${process.env.FIREBASE_PROJECT_ID}",
@@ -19,10 +21,13 @@ const firebaseApp = initializeApp({
   appId: "${process.env.FIREBASE_APP_ID}"
 });
 
-const messaging = getMessaging(firebaseApp);
+console.log({firebase});
 
-onBackgroundMessage(messaging, (payload) => {
-  const notificationTitle = payload.notification.title;
+const messaging = firebase.messaging();
+
+messaging.onBackgroundMessage(function(payload) {
+  console.log("Message received 3. ", payload);
+  const notificationTitle = payload.notification.title + " sw";
   const notificationOptions = {
     body: payload.notification.body,
     icon: "/Tutor/favicon-32x32.png",
@@ -42,6 +47,8 @@ onBackgroundMessage(messaging, (payload) => {
 
   return self.registration.showNotification(notificationTitle, notificationOptions);
 });
+
+
 `;
 
 // Write to public directory
