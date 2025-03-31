@@ -26,32 +26,62 @@ const messaging = firebase.messaging();
 
 // This would go in your firebase-messaging-sw.js file
 self.addEventListener("notificationclick", function (event) {
-  const notification = event.notification;
-  const data = notification.data;
-
+  console.log('Notification click received:', event);
+  
   // Close the notification
   event.notification.close();
   
-  // Open the question detail page if question_id is available
-  if (data && data.question_id) {
-    const url = '/questions/' + data.question_id;
-    
-    event.waitUntil(
-      clients.matchAll({type: 'window'}).then(clientList => {
-        // Check if there is already a window/tab open with the target URL
-        for (const client of clientList) {
-          if (client.url === url && 'focus' in client) {
-            return client.focus();
-          }
-        }
-        // If no window/tab is open, open a new one
-        if (clients.openWindow) {
-          return clients.openWindow(url);
-        }
-      })
-    );
+  // Get the notification data
+  const notifData = event.notification.data;
+  let questionId;
+  
+  // FCM puts the data in different places depending on the platform
+  if (notifData && notifData.FCM_MSG && notifData.FCM_MSG.data) {
+    // This is how FCM structures the data in the service worker
+    questionId = notifData.FCM_MSG.data.question_id;
+  } else if (event.notification.data) {
+    // Direct access might work in some browsers
+    questionId = event.notification.data.question_id;
   }
+  
+  // Default fallback URL (questions list page)
+  let url = '/questions';
+  
+  // If we have a question ID, navigate to that specific question
+  if (questionId) {
+    url = '/questions/' + questionId;
+  }
+  
+  // Add base URL if needed for your project
+  if (!url.startsWith('http')) {
+    // Use your app's base URL
+    url = self.registration.scope + url.replace(/^\//, '');
+  }
+  
+  console.log('Navigating to URL:', url);
+  
+  // Handle the click event - open or focus the appropriate window
+  event.waitUntil(
+    clients.matchAll({type: 'window'}).then(clientList => {
+      // Check if there is already a window/tab open with the target URL
+      for (const client of clientList) {
+        // Try to match existing client URL to our target
+        if (client.url === url && 'focus' in client) {
+          return client.focus();
+        }
+      }
+      
+      // If no window/tab is open, open a new one
+      if (clients.openWindow) {
+        return clients.openWindow(url);
+      }
+    })
+  );
 });
+
+
+
+
 
 //comented out as it will cause duplicate notifications
 // messaging.onBackgroundMessage(function(payload) {

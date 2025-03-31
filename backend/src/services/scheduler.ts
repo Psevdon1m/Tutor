@@ -189,12 +189,13 @@ export class SchedulerService {
       // Send push notification with FCM
       await this.sendPushNotification(
         userPref.fcm_token,
-        `New ${subjectData.name} Question`,
-        `Time to practice: ${questionData.question.substring(0, 100)}...`,
+        `Practicing ${subjectData.name}`,
+        `${questionData.question.substring(0, 100)}...`,
         {
           question_id: savedQuestion.id,
           subject: subjectData.name,
-        }
+        },
+        savedQuestion.id
       );
       console.log("push notification sent");
 
@@ -223,11 +224,20 @@ export class SchedulerService {
     token: string,
     title: string,
     body: string,
-    data: any
+    data: any,
+    questionId: string
   ) {
     try {
       // Get OAuth 2.0 access token - this requires setting up Google Application Default Credentials
       const accessToken = await this.getAccessToken();
+
+      // Make sure the question_id is included in data
+      // The data needs to be all strings for FCM
+      const notificationData = this.transformData({
+        ...data,
+        question_id: data.question_id,
+        click_action: "OPEN_QUESTION_DETAIL", // This helps with intent filtering
+      });
 
       const response = await fetch(
         "https://fcm.googleapis.com/v1/projects/tutor-bd76b/messages:send",
@@ -239,12 +249,38 @@ export class SchedulerService {
           },
           body: JSON.stringify({
             message: {
-              token: token, // Use token instead of 'to'
+              token: token,
               notification: {
                 title,
                 body,
               },
-              data: this.transformData(data),
+              // Include data for both Android and Web
+              data: notificationData,
+              // For iOS, we need to add the content_available flag
+              apns: {
+                payload: {
+                  aps: {
+                    "content-available": 1,
+                    "mutable-content": 1,
+                    category: "QUESTION_NOTIFICATION",
+                  },
+                  // Also include the data in the APNS payload
+                  ...notificationData,
+                },
+              },
+              // For Android
+              android: {
+                priority: "high",
+                notification: {
+                  click_action: "OPEN_QUESTION_DETAIL",
+                },
+              },
+              // Add a web specific object
+              webpush: {
+                fcm_options: {
+                  link: `/questions/${data.question_id}`,
+                },
+              },
             },
           }),
         }
