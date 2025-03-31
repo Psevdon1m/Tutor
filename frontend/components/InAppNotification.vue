@@ -16,7 +16,7 @@
           <div class="flex-shrink-0">
             <img
               class="h-10 w-10 rounded-full"
-              src="/Tutor/favicon-32x32.png"
+              src="/favicon-32x32.png"
               alt="Tutor"
             />
           </div>
