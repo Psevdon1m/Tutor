@@ -21,32 +21,32 @@ firebase.initializeApp({
   appId: "${process.env.FIREBASE_APP_ID}"
 });
 
-console.log({firebase});
+// console.log({firebase});
 
-const messaging = firebase.messaging();
+// const messaging = firebase.messaging();
 
-messaging.onBackgroundMessage(function(payload) {
-  console.log("Message received 3. ", payload);
-  const notificationTitle = payload.notification.title + " sw";
-  const notificationOptions = {
-    body: payload.notification.body,
-    icon: "/Tutor/favicon-32x32.png",
-    badge: "/Tutor/favicon-32x32.png",
-    data: payload.data,
-    tag: payload.notification.title.replace(" ", "_"),
-    renotify: true,
-    requireInteraction: true,
-    vibrate: [200, 100, 200],
-    actions: [
-      {
-        action: "open",
-        title: "Open App",
-      },
-    ],
-  };
+// messaging.onBackgroundMessage(function(payload) {
+//   console.log("Message received 3. ", payload);
+//   const notificationTitle = payload.notification.title + " sw";
+//   const notificationOptions = {
+//     body: payload.notification.body,
+//     icon: "/Tutor/favicon-32x32.png",
+//     badge: "/Tutor/favicon-32x32.png",
+//     data: payload.data,
+//     tag: payload.notification.title.replace(" ", "_"),
+//     renotify: true,
+//     requireInteraction: true,
+//     vibrate: [200, 100, 200],
+//     actions: [
+//       {
+//         action: "open",
+//         title: "Open App",
+//       },
+//     ],
+//   };
 
-  self.registration.showNotification(notificationTitle, notificationOptions);
-});
+//   self.registration.showNotification(notificationTitle, notificationOptions);
+// });
 
 // onBackgroundMessage(messaging, (payload) => {
 //   console.log("Message received 4. ", payload);

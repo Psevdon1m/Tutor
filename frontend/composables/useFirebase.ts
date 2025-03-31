@@ -5,6 +5,7 @@ import {
   onMessage,
   type MessagePayload,
 } from "firebase/messaging";
+import { onBackgroundMessage } from "firebase/messaging/sw";
 
 export const useFirebase = () => {
   const config = useRuntimeConfig();
@@ -61,6 +62,31 @@ export const useFirebase = () => {
       // service worker handle background notifications
     });
   };
+  onBackgroundMessage(messaging, (payload: MessagePayload) => {
+    console.log("Message received 3. ", payload);
+    const notificationTitle = payload.notification?.title || "" + " sw";
+    const notificationOptions = {
+      body: payload.notification?.body || "",
+      icon: "/Tutor/favicon-32x32.png",
+      badge: "/Tutor/favicon-32x32.png",
+      data: payload.data,
+      tag: payload.messageId,
+      renotify: true,
+      requireInteraction: true,
+      vibrate: [200, 100, 200],
+      actions: [
+        {
+          action: "open",
+          title: "Open App",
+        },
+      ],
+    };
+    // @ts-ignore
+    return self.registration.showNotification(
+      notificationTitle,
+      notificationOptions
+    );
+  });
 
   return {
     requestPermission,
