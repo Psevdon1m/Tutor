@@ -68,7 +68,6 @@ export default defineNuxtConfig({
           sizes: "16x16",
           href: "/Tutor/favicon-16x16.png",
         },
-        { rel: "manifest", href: "/Tutor/site.webmanifest" },
       ],
     },
     baseURL: "/Tutor/",
