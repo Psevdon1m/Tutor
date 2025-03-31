@@ -9,6 +9,8 @@ interface UserPreference {
   subjects: string[];
   notification_frequency: 1 | 2 | 3;
   fcm_token: string | null;
+  recent_subjects: string[];
+  last_subject_update: string;
 }
 interface QnA {
   question: string;
@@ -117,12 +119,8 @@ export class SchedulerService {
         return;
       }
 
-      // Randomly select one subject from the user's preferences
-      const randomSubjectIndex = Math.floor(
-        Math.random() * userPref.subjects.length
-      );
-      console.log({ randomSubjectIndex });
-      const subjectId = userPref.subjects[randomSubjectIndex];
+      // Use the new subject selection method
+      const subjectId = await this.selectSubject(userPref);
 
       // Get the subject name from the subjects table
       const { data: subjectData, error: subjectError } = await this.supabase
@@ -139,6 +137,8 @@ export class SchedulerService {
         return;
       }
 
+      console.log("subject data fetched", subjectData);
+
       // Generate question and answer
       const questionResponse = await fetch(
         `${this.apiBaseUrl}/api/generate-question`,
@@ -147,9 +147,15 @@ export class SchedulerService {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ subject: subjectData.name }),
+          body: JSON.stringify({
+            subject:
+              subjectData.name === "Українська"
+                ? "Ukrainian"
+                : subjectData.name,
+          }),
         }
       );
+      console.log("question generated");
 
       if (!questionResponse.ok) {
         console.log(JSON.stringify(questionResponse));
@@ -178,6 +184,7 @@ export class SchedulerService {
       if (saveError) {
         throw saveError;
       }
+      console.log("question saved");
 
       // Send push notification with FCM
       await this.sendPushNotification(
@@ -189,6 +196,16 @@ export class SchedulerService {
           subject: subjectData.name,
         }
       );
+      console.log("push notification sent");
+
+      // After successful notification, update history if needed
+      await this.supabase
+        .from("user_preferences")
+        .update({
+          last_subject_update: new Date().toISOString(),
+          recent_subjects: [...userPref.recent_subjects, subjectId],
+        })
+        .eq("user_id", userPref.user_id);
 
       console.log(
         `Processed notification for user ${userPref.user_id}, subject: ${subjectData.name}`
@@ -277,5 +294,75 @@ export class SchedulerService {
     const client = await auth.getClient();
     const accessToken = await client.getAccessToken();
     return accessToken.token;
+  }
+
+  private async selectSubject(userPref: UserPreference): Promise<string> {
+    // Get all user's subjects
+    const availableSubjects = userPref.subjects || [];
+
+    if (availableSubjects.length === 0) {
+      throw new Error("No subjects available for user");
+    }
+
+    if (availableSubjects.length === 1) {
+      return availableSubjects[0]; // Only one option
+    }
+
+    // Get history of subjects used for this user in the last 24 hours
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    const { data: recentSubjects } = await this.supabase
+      .from("questions")
+      .select("subject_id, created_at")
+      .eq("user_id", userPref.user_id)
+      .gte("created_at", yesterday.toISOString())
+      .order("created_at", { ascending: false });
+
+    console.log({ recentSubjects });
+
+    // If no history or all subjects have been used, reset weights
+    if (!recentSubjects || recentSubjects.length === 0) {
+      return this.getRandomElement(availableSubjects);
+    }
+
+    // If we've used all subjects today, prioritize the least recently used
+    if (recentSubjects.length >= availableSubjects.length) {
+      // Sort subjects by how recently they were used
+      const subjectFrequency: Record<string, number> = {};
+      recentSubjects.forEach((item) => {
+        subjectFrequency[item.subject_id] =
+          (subjectFrequency[item.subject_id] || 0) + 1;
+      });
+      console.log({ subjectFrequency });
+
+      // Find least used subject
+      const subjectsSortedByUsage = availableSubjects.sort(
+        (a, b) => (subjectFrequency[a] || 0) - (subjectFrequency[b] || 0)
+      );
+
+      return subjectsSortedByUsage[0];
+    }
+
+    // Get subjects not used today
+    const usedSubjectIds = new Set(
+      recentSubjects.map((item) => item.subject_id)
+    );
+    const unusedSubjects = availableSubjects.filter(
+      (id) => !usedSubjectIds.has(id)
+    );
+
+    // Pick randomly from unused subjects
+    if (unusedSubjects.length > 0) {
+      return this.getRandomElement(unusedSubjects);
+    }
+
+    // Fallback to completely random if something went wrong
+    return this.getRandomElement(availableSubjects);
+  }
+
+  // Helper method for random selection
+  private getRandomElement<T>(array: T[]): T {
+    return array[Math.floor(Math.random() * array.length)];
   }
 }
