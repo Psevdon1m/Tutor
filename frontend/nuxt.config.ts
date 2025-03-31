@@ -89,15 +89,27 @@ export default defineNuxtConfig({
     },
     workbox: {
       importScripts: ["/Tutor/firebase-messaging-sw.js"],
+      navigateFallback: "/Tutor/",
+      globPatterns: ["**/*.{js,css,html,png,svg,ico}"],
+      runtimeCaching: [
+        {
+          urlPattern: /^https:\/\/psevdon1m\.github\.io\/Tutor\//,
+          handler: "NetworkFirst",
+          options: {
+            cacheName: "tutor-cache",
+            expiration: {
+              maxEntries: 100,
+              maxAgeSeconds: 60 * 60 * 24 * 7, // 1 week
+            },
+            cacheableResponse: {
+              statuses: [0, 200],
+            },
+          },
+        },
+      ],
     },
   },
-  // @ts-ignore
-  workbox: {
-    globPatterns: ["**/*.{js,css,html,png,svg,ico}"],
-  },
-  injectManifest: {
-    globPatterns: ["**/*.{js,css,html,png,svg,ico}"],
-  },
+
   typescript: {
     strict: true,
   },
