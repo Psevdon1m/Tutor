@@ -20,6 +20,8 @@ export const useFirebase = () => {
   };
   const app = initializeApp(firebaseConfig);
   const messaging = getMessaging(app);
+  console.log({ messaging });
+
   const vapidKey = useRuntimeConfig().public.vapidKey as string;
 
   const requestPermission = async () => {
