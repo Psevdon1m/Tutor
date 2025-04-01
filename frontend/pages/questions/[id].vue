@@ -117,8 +117,14 @@ const fetchQuestion = async () => {
   error.value = null;
 
   try {
-    const result = await questionsStore.fetchQuestionById(id);
-    question.value = result;
+    const isQuestionExists = questionsStore.getQuestionById(id);
+    if (isQuestionExists) {
+      question.value = isQuestionExists;
+    } else {
+      debugger;
+      const result = await questionsStore.fetchQuestionById(id);
+      question.value = result;
+    }
   } catch (err: any) {
     error.value =
       err instanceof Error ? err.message : "Failed to load question";

@@ -122,61 +122,33 @@ import type { Database } from "~/types/database";
 import type { Question } from "~/types/db/question";
 
 // State
-const questions = ref<Question[]>([]);
 const loading = ref(true);
 const expandedAnswers = reactive<Record<string, boolean>>({});
-const user = useSupabaseUser();
-const supabase = useSupabaseClient<Database>();
+
+const questionsStore = useQuestionsStore();
+const questions = computed(() => questionsStore.getQuestions);
 
 // Fetch questions on mount
 onMounted(async () => {
-  if (!user.value) return;
-
-  try {
-    loading.value = true;
-
-    // Fetch questions with subject information
-    const { data, error } = await supabase
-      .from("questions")
-      .select(
-        `
-        *,
-        subject:subject_id (
-          id,
-          name
-        )
-      `
-      )
-      .order("created_at", { ascending: false })
-      .limit(50);
-
-    if (error) throw error;
-
-    questions.value = data as unknown as Question[];
-  } catch (error) {
-    console.error("Error fetching questions:", error);
-  } finally {
-    loading.value = false;
+  if (questionsStore.questions.length === 0) {
+    await questionsStore.fetchQuestions();
   }
+  loading.value = false;
 });
 
 // Toggle answer visibility
 const toggleAnswer = (id: string) => {
-  expandedAnswers[id] = !expandedAnswers[id];
-};
-
-// Mark question as read/unread
-const markAsRead = async (id: string, read: boolean) => {
-  try {
-    const { error } = await supabase
-      .from("questions")
-      .update({ read })
-      .eq("id", id);
-
-    if (error) throw error;
-  } catch (error) {
-    console.error("Error updating question:", error);
+  const question = questions.value.find((q) => q.id === id);
+  if (
+    question &&
+    (question.subject.name === "TypeScript" ||
+      question.subject.name === "Node.js")
+  ) {
+    navigateTo(`/questions/${question.id}`);
+    return;
   }
+
+  expandedAnswers[id] = !expandedAnswers[id];
 };
 
 // Format date helper

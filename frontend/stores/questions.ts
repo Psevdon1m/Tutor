@@ -100,4 +100,10 @@ export const useQuestionsStore = defineStore("questions", {
       }
     },
   },
+  getters: {
+    getQuestionById: (state) => (id: string) => {
+      return state.questions.find((q) => q.id === id);
+    },
+    getQuestions: (state) => state.questions,
+  },
 });
