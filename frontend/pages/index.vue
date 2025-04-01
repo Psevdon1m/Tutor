@@ -65,7 +65,6 @@ const supabase = useSupabaseClient<Database>();
 const isSubmitting = ref(false);
 
 const toggleSubject = (subject: Subject) => {
-  debugger;
   if (submitForm.value.subjects === null) {
     submitForm.value.subjects = {};
   }
