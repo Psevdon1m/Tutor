@@ -142,7 +142,7 @@ const toggleAnswer = (id: string) => {
   if (
     question &&
     (question.subject.name === "TypeScript" ||
-      question.subject.name === "Node.js")
+      question.subject.name === "Node.JS")
   ) {
     navigateTo(`/questions/${question.id}`);
     return;
