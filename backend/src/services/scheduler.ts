@@ -29,7 +29,8 @@ export class SchedulerService {
       process.env.SUPABASE_KEY as string
     );
 
-    this.apiBaseUrl = process.env.API_BASE_URL || "http://localhost:3001";
+    this.apiBaseUrl =
+      process.env.API_BASE_URL || "https://tutor-backend-9s28.onrender.com";
   }
 
   // Schedule all notifications
