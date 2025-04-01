@@ -245,14 +245,14 @@ async function setupUserNotificationSchedule(userId: string) {
       case 3: // Three times a day
         schedules.push(
           { time: "08:00", label: "morning" },
-          { time: "15:00", label: "afternoon" },
+          { time: "15:09", label: "afternoon" },
           { time: "18:00", label: "evening" }
         );
         break;
       case 2: // Twice a day
         schedules.push(
           { time: "08:00", label: "morning" },
-          { time: "15:00", label: "afternoon" }
+          { time: "15:09", label: "afternoon" }
         );
         break;
       case 1: // Once a day

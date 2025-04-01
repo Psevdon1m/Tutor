@@ -140,9 +140,6 @@ const updateCurrentUserSubjects = () => {
 // Fetch subjects when component mounts
 onMounted(async () => {
   await subjectsStore.fetchSubjects();
-  nextTick(() => {
-    updateCurrentUserSubjects();
-  });
 });
 
 async function savePreferences() {
@@ -172,7 +169,11 @@ watch(
   (newUser, oldUser) => {
     if (newUser?.id !== oldUser?.id && newUser) {
       console.log("User changed, fetching preferences");
-      userStore.fetchUserPreferences(newUser.id);
+      userStore.fetchUserPreferences(newUser.id).then(() => {
+        nextTick(() => {
+          updateCurrentUserSubjects();
+        });
+      });
     }
   },
   { immediate: true }

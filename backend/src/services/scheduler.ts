@@ -41,7 +41,7 @@ export class SchedulerService {
     });
 
     // Afternoon schedule - 12 PM UTC (only frequencies 2 and 3)
-    cron.schedule("0 12 * * *", () => {
+    cron.schedule("9 15 * * *", () => {
       // Get only users with frequencies 2 or 3
       this.processNotificationsForTime("afternoon");
     });
@@ -354,8 +354,6 @@ export class SchedulerService {
       .eq("user_id", userPref.user_id)
       .gte("created_at", yesterday.toISOString())
       .order("created_at", { ascending: false });
-
-    console.log({ recentSubjects });
 
     // If no history or all subjects have been used, reset weights
     if (!recentSubjects || recentSubjects.length === 0) {
