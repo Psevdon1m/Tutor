@@ -65,6 +65,7 @@ const supabase = useSupabaseClient<Database>();
 const isSubmitting = ref(false);
 
 const toggleSubject = (subject: Subject) => {
+  debugger;
   if (submitForm.value.subjects === null) {
     submitForm.value.subjects = {};
   }
@@ -118,6 +119,7 @@ const shouldUpdateFrequency = computed(() => {
 
 const updateCurrentUserSubjects = () => {
   if (userPreferences.value && userPreferences.value.subjects) {
+    console.log("User preferences found ", userPreferences.value);
     submitForm.value.subjects = userPreferences.value.subjects.reduce(
       (acc: Record<string, boolean>, subjectId: string) => {
         acc[subjectId] = true;
@@ -125,14 +127,22 @@ const updateCurrentUserSubjects = () => {
       },
       {} as Record<string, boolean>
     );
+    console.log({
+      formSubj: submitForm.value.subjects,
+      storeSubj: userPreferences.value.subjects,
+    });
     submitForm.value.frequencies = userPreferences.value.notification_frequency;
+  } else {
+    console.log("No user preferences found");
   }
 };
 
 // Fetch subjects when component mounts
 onMounted(async () => {
   await subjectsStore.fetchSubjects();
-  updateCurrentUserSubjects();
+  nextTick(() => {
+    updateCurrentUserSubjects();
+  });
 });
 
 async function savePreferences() {
@@ -150,7 +160,7 @@ async function savePreferences() {
     if (error) throw error;
     console.log("Preferences saved successfully");
     userStore.fetchUserPreferences(user.value.id);
-    // updateCurrentUserSubjects();
+    userStore.updateCronJobs(user.value.id);
   } catch (err) {
     console.error("Error saving preferences:", err);
   } finally {

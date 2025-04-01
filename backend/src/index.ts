@@ -212,7 +212,171 @@ app.delete("/api/cron-jobs/:jobId", (req, res) => {
   }
 });
 
+// Function to set up user's notification schedule
+async function setupUserNotificationSchedule(userId: string) {
+  try {
+    // Get user preferences from Supabase
+    const { data: userPref, error: userError } = await schedulerService[
+      "supabase"
+    ]
+      .from("user_preferences")
+      .select("*")
+      .eq("user_id", userId)
+      .single();
+
+    if (userError || !userPref) {
+      console.error(`User preferences not found for user ${userId}`);
+      return null;
+    }
+
+    // Remove existing cron jobs for this user
+    const userJobIds = Array.from(activeCronJobs.keys()).filter((key) =>
+      key.startsWith(`user_${userId}`)
+    );
+    userJobIds.forEach((jobId) => {
+      activeCronJobs.get(jobId)?.job.stop();
+      activeCronJobs.delete(jobId);
+    });
+
+    const schedules = [];
+
+    // Set up cron jobs based on notification frequency
+    switch (userPref.notification_frequency) {
+      case 3: // Three times a day
+        schedules.push(
+          { time: "08:00", label: "morning" },
+          { time: "15:00", label: "afternoon" },
+          { time: "18:00", label: "evening" }
+        );
+        break;
+      case 2: // Twice a day
+        schedules.push(
+          { time: "08:00", label: "morning" },
+          { time: "15:00", label: "afternoon" }
+        );
+        break;
+      case 1: // Once a day
+        schedules.push({ time: "08:00", label: "morning" });
+        break;
+      default:
+        console.error(`Invalid notification frequency for user ${userId}`);
+        return null;
+    }
+
+    // Create cron jobs for each schedule
+    const createdJobs = schedules.map((schedule) => {
+      const jobId = `user_${userId}_${schedule.label}`;
+      const cronExpression = timeToCronExpression(schedule.time);
+
+      console.log(
+        `Setting up ${schedule.label} notification for user ${userId} at ${schedule.time} UTC (${cronExpression})`
+      );
+
+      const job = cron.schedule(
+        cronExpression,
+        async () => {
+          console.log(
+            `Executing ${
+              schedule.label
+            } notification for user ${userId} at ${new Date().toISOString()}`
+          );
+          try {
+            await schedulerService["processUserNotification"](userPref);
+          } catch (error) {
+            console.error(
+              `Error processing ${schedule.label} notification for user ${userId}:`,
+              error
+            );
+          }
+        },
+        {
+          scheduled: true,
+          timezone: "UTC",
+        }
+      );
+
+      activeCronJobs.set(jobId, { job, time: schedule.time });
+
+      return {
+        jobId,
+        schedule: schedule.label,
+        time: schedule.time,
+        cronExpression,
+      };
+    });
+
+    return {
+      userId,
+      frequency: userPref.notification_frequency,
+      schedules: createdJobs,
+    };
+  } catch (error) {
+    console.error("Error setting up user notifications:", error);
+    return null;
+  }
+}
+
+// Initialize all user schedules on server start
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`Server running on port ${PORT}`);
+
+  try {
+    // Get all users with notification preferences
+    const { data: users, error } = await schedulerService["supabase"]
+      .from("user_preferences")
+      .select("user_id")
+      .not("fcm_token", "is", null);
+
+    if (error) {
+      console.error("Error fetching users:", error);
+      return;
+    }
+
+    console.log(`Setting up notifications for ${users.length} users`);
+
+    // Set up notifications for each user
+    for (const user of users) {
+      const result = await setupUserNotificationSchedule(user.user_id);
+      if (result) {
+        console.log(
+          `Successfully set up notifications for user ${user.user_id}`
+        );
+      }
+    }
+  } catch (error) {
+    console.error("Error initializing notification schedules:", error);
+  }
+});
+
+// Endpoint to update user's notification schedule
+app.post("/api/update-notification-schedule", async (req, res) => {
+  try {
+    const { userId } = req.body;
+
+    if (!userId) {
+      return res.status(400).json({
+        error: "userId is required",
+      });
+    }
+
+    const result = await setupUserNotificationSchedule(userId);
+
+    if (!result) {
+      return res.status(404).json({
+        error: "Failed to set up user notification schedule",
+      });
+    }
+
+    res.json({
+      message: "Notification schedule updated successfully",
+      ...result,
+    });
+  } catch (error) {
+    console.error("Error updating notification schedule:", error);
+    res.status(500).json({
+      error: "Internal server error",
+      details: error instanceof Error ? error.message : "Unknown error",
+    });
+  }
 });

@@ -29,6 +29,21 @@ export const useUserStore = defineStore("userStore", {
         this.loading = false;
       }
     },
+    async updateCronJobs(user_id: string) {
+      try {
+        const result = await fetch(
+          "http://localhost:3001/api/update-notification-schedule",
+          {
+            method: "POST",
+            body: JSON.stringify({ user_id }),
+          }
+        );
+        const data = await result.json();
+        console.log(data);
+      } catch (error) {
+        console.error("Error updating cron jobs:", error);
+      }
+    },
     resetUserPreferences() {
       this.userPreferences = null;
     },
