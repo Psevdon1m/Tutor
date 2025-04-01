@@ -268,10 +268,6 @@ async function setupUserNotificationSchedule(userId: string) {
       const jobId = `user_${userId}_${schedule.label}`;
       const cronExpression = timeToCronExpression(schedule.time);
 
-      console.log(
-        `Setting up ${schedule.label} notification for user ${userId} at ${schedule.time} UTC (${cronExpression})`
-      );
-
       const job = cron.schedule(
         cronExpression,
         async () => {
@@ -332,8 +328,6 @@ app.listen(PORT, async () => {
       console.error("Error fetching users:", error);
       return;
     }
-
-    console.log(`Setting up notifications for ${users.length} users`);
 
     // Set up notifications for each user
     for (const user of users) {

@@ -106,7 +106,6 @@ export class SchedulerService {
 
   // Process notification for a single user
   private async processUserNotification(userPref: UserPreference) {
-    console.log({ userPref });
     try {
       // Skip if no subjects or no FCM token
       if (
@@ -138,8 +137,6 @@ export class SchedulerService {
         return;
       }
 
-      console.log("subject data fetched", subjectData);
-
       // Generate question and answer
       const questionResponse = await fetch(
         `${this.apiBaseUrl}/api/generate-question`,
@@ -156,7 +153,6 @@ export class SchedulerService {
           }),
         }
       );
-      console.log("question generated");
 
       if (!questionResponse.ok) {
         console.log(JSON.stringify(questionResponse));
@@ -185,7 +181,6 @@ export class SchedulerService {
       if (saveError) {
         throw saveError;
       }
-      console.log("question saved");
 
       // Send push notification with FCM
       await this.sendPushNotification(
@@ -198,7 +193,6 @@ export class SchedulerService {
         },
         savedQuestion.id
       );
-      console.log("push notification sent");
 
       // After successful notification, update history if needed
       await this.supabase
@@ -387,7 +381,6 @@ export class SchedulerService {
         subjectFrequency[item.subject_id] =
           (subjectFrequency[item.subject_id] || 0) + 1;
       });
-      console.log({ subjectFrequency });
 
       // Find least used subject
       const subjectsSortedByUsage = availableSubjects.sort(
