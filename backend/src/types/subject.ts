@@ -1,8 +1,8 @@
-export type Subject = "Ukrainian" | "English" | "Node.js" | "TypeScript";
+export type Subject = "Ukrainian" | "English" | "Node.JS" | "TypeScript";
 
 export const subjects: Subject[] = [
   "Ukrainian",
   "English",
-  "Node.js",
+  "Node.JS",
   "TypeScript",
 ];

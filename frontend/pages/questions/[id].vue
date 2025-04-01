@@ -156,10 +156,10 @@ const goBack = () => {
 };
 
 const parseAnswer = (answer: string) => {
-  // First, extract all code blocks
+  // First, extract all code blocks and store them with their placeholders
   const codeBlocks: { language: string; code: string }[] = [];
   let text = answer.replace(
-    /```(typescript|[\w]*)\s*([\s\S]*?)```/g,
+    /```([\w]*)\s*([\s\S]*?)```/g,
     (match, lang, code) => {
       const language = lang.trim().toLowerCase() || "plaintext";
       const cleanCode = code.trim().replace(/^typescript\s+/i, "");
@@ -176,24 +176,24 @@ const parseAnswer = (answer: string) => {
         language,
         code: formattedCode,
       });
-      return "{{CODE_BLOCK_" + (codeBlocks.length - 1) + "}}";
+      return "\n\n{{CODE_BLOCK_" + (codeBlocks.length - 1) + "}}\n\n";
     }
   );
 
-  console.log({ codeBlocks, text });
-
   // Process regular text and code block placeholders
   const result = [];
-  const paragraphs = text.split("\n\n");
 
-  for (const paragraph of paragraphs) {
-    const trimmedParagraph = paragraph.trim();
-    if (!trimmedParagraph) continue;
+  // Split into paragraphs while preserving code block markers
+  const sections = text.split(/\n{2,}/);
 
-    if (trimmedParagraph.startsWith("{{CODE_BLOCK_")) {
-      // Replace code block placeholder with actual code block
+  for (const section of sections) {
+    const trimmedSection = section.trim();
+    if (!trimmedSection) continue;
+
+    if (trimmedSection.match(/^{{CODE_BLOCK_\d+}}$/)) {
+      // Handle code block
       const blockIndex = parseInt(
-        trimmedParagraph.match(/{{CODE_BLOCK_(\d+)}}/)?.[1] || "0"
+        trimmedSection.match(/{{CODE_BLOCK_(\d+)}}/)?.[1] || "0"
       );
       const block = codeBlocks[blockIndex];
       if (block) {
@@ -206,25 +206,52 @@ const parseAnswer = (answer: string) => {
           </div>
         `);
       }
-    } else if (
-      trimmedParagraph.startsWith("1.") ||
-      trimmedParagraph.startsWith("*") ||
-      trimmedParagraph.startsWith("-")
-    ) {
-      // Handle lists
-      const listItems = trimmedParagraph
-        .split("\n")
-        .map((item) => item.trim())
-        .filter((item) => item)
-        .map((item) => {
-          const cleanItem = item.replace(/^[1-9]\.\s*|\*\s*|-\s*/, "");
-          return `<li class="ml-6 list-disc text-gray-700">${cleanItem}</li>`;
-        })
-        .join("");
-      result.push(`<ul class="my-4 space-y-2">${listItems}</ul>`);
     } else {
-      // Regular paragraph
-      result.push(`<p class="text-gray-700 my-4">${trimmedParagraph}</p>`);
+      // Check if this is part of a numbered list
+      const listMatch = trimmedSection.match(/^\d+\.\s/);
+      if (listMatch) {
+        // Handle numbered list item with potential inline code block reference
+        const listContent = trimmedSection.replace(/^\d+\.\s/, "");
+        const processedContent = listContent.replace(
+          /{{CODE_BLOCK_(\d+)}}/g,
+          (match, blockIndex) => {
+            const block = codeBlocks[parseInt(blockIndex)];
+            if (block) {
+              return `
+              <div class="relative my-4">
+                <div class="absolute top-0 right-0 px-4 py-2 rounded-tr bg-gray-800 text-xs text-gray-400">
+                  ${block.language}
+                </div>
+                <pre class="bg-gray-800 rounded-lg p-4 overflow-x-auto"><code class="language-${block.language} text-sm">${block.code}</code></pre>
+              </div>
+            `;
+            }
+            return match;
+          }
+        );
+        result.push(`<div class="flex gap-2 my-4">
+          <span class="font-medium">${listMatch[0].trim()}</span>
+          <div class="flex-1">${processedContent}</div>
+        </div>`);
+      } else if (
+        trimmedSection.startsWith("*") ||
+        trimmedSection.startsWith("-")
+      ) {
+        // Handle unordered lists
+        const listItems = trimmedSection
+          .split("\n")
+          .map((item) => item.trim())
+          .filter((item) => item)
+          .map((item) => {
+            const cleanItem = item.replace(/^[*-]\s*/, "");
+            return `<li class="ml-6 list-disc text-gray-700">${cleanItem}</li>`;
+          })
+          .join("");
+        result.push(`<ul class="my-4 space-y-2">${listItems}</ul>`);
+      } else {
+        // Regular paragraph
+        result.push(`<p class="text-gray-700 my-4">${trimmedSection}</p>`);
+      }
     }
   }
 

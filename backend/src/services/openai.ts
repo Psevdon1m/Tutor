@@ -42,7 +42,7 @@ Generate questions and answers that:
       string
     > = {
       English: `${basePrompt} English language. Focus on grammar, vocabulary, and practical usage. Generate questions that test understanding of English language concepts. Help students prepare for IELTS exam C1 level.`,
-      "Node.js": `${basePrompt} Node.js development. Focus on best practices, common patterns, and real-world scenarios. Generate questions about Node.js concepts, APIs, and problem-solving. Help students prepare for Node.js technical interview asking short questions.Code blocks should be enclosed in \`\`\` tags.`,
+      "Node.JS": `${basePrompt} Node.js development. Focus on best practices, common patterns, and real-world scenarios. Generate questions about Node.js concepts, APIs, and problem-solving. Help students prepare for Node.js technical interview asking short questions.Code blocks should be enclosed in \`\`\` tags.`,
       TypeScript: `${basePrompt} TypeScript programming. Focus on type system, interfaces, and TypeScript-specific features. Generate questions about TypeScript concepts and practical usage. Help students prepare for TypeScript technical interview asking short questions. Code blocks should be enclosed in \`\`\` tags.`,
     };
 
