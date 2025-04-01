@@ -55,7 +55,7 @@ self.addEventListener("notificationclick", function (event) {
   // Add base URL if needed for your project
   if (!url.startsWith('http')) {
     // Use your app's base URL
-    url = self.registration.scope + url.startsWith('/') ? url.substring(1) : url;
+    url = self.registration.scope + url.includes('/Tutor') ? "" : "/Tutor"  + url.startsWith('/') ? url.substring(1) : url;
   }
   
   console.log('Navigating to URL:', url);
