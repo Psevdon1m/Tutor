@@ -46,18 +46,29 @@
 
 <script setup lang="ts">
 import type { UserProfile } from "~/types/user";
-
+import type { Database } from "~/types/database";
 const user = useSupabaseUser();
-const supabase = useSupabaseClient();
+const supabase = useSupabaseClient<Database>();
 const userData = ref<UserProfile | null>(
   user.value?.user_metadata as UserProfile
 );
 const userStore = useUserStore();
 const handleSignOut = async () => {
   try {
+    try {
+      await supabase
+        .from("user_preferences")
+        .update({
+          fcm_token: null,
+        })
+        .eq("user_id", user.value?.id);
+    } catch (error) {
+      console.error("Error resetting user fcm token:", error);
+    }
     const { error } = await supabase.auth.signOut();
 
     if (error) throw error;
+
     localStorage.removeItem("fcm_token");
     userStore.resetUserPreferences();
     // Nuxt will automatically handle the navigation when user is signed out
