@@ -117,11 +117,11 @@ const fetchQuestion = async () => {
   error.value = null;
 
   try {
-    const isQuestionExists = questionsStore.getQuestionById(id);
-    if (isQuestionExists) {
-      question.value = isQuestionExists;
+    // Check cache first
+    const cachedQuestion = questionsStore.getQuestionById(id);
+    if (cachedQuestion) {
+      question.value = cachedQuestion;
     } else {
-      debugger;
       const result = await questionsStore.fetchQuestionById(id);
       question.value = result;
     }
