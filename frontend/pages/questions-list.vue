@@ -59,6 +59,7 @@
         v-for="question in questions"
         :key="question.id"
         class="bg-white rounded-lg shadow-md overflow-hidden"
+        @click="navigateTo(`/questions/${question.id}`)"
       >
         <div class="p-6">
           <!-- Subject badge -->
@@ -75,7 +76,7 @@
 
           <!-- Toggle answer button -->
           <button
-            @click="toggleAnswer(question.id)"
+            @click.stop="toggleAnswer(question.id)"
             class="text-[#5e9f95] font-medium flex items-center"
           >
             {{ expandedAnswers[question.id] ? "Hide Answer" : "Show Answer" }}
