@@ -25,12 +25,14 @@
     "openai": "^4.90.0",
     "pinia": "^3.0.1",
     "postcss": "^8.5.3",
+    "prismjs": "^1.30.0",
     "tailwindcss": "^4.0.17",
     "typescript": "^5.8.2",
     "vue": "^3.5.13",
     "vue-router": "^4.5.0"
   },
   "devDependencies": {
+    "@types/prismjs": "^1.26.5",
     "@vite-pwa/nuxt": "^0.10.8",
     "dotenv": "^16.4.7",
     "tsx": "^4.19.3"

@@ -37,7 +37,7 @@
       class="w-full h-14 bg-[#5e9f95] text-white text-xl rounded-2xl hover:opacity-90 transition-opacity"
       v-else
     >
-      <NuxtLink to="/questions"> Go to questions </NuxtLink>
+      <NuxtLink to="/questions-list"> Go to questions </NuxtLink>
     </button>
   </div>
 </template>

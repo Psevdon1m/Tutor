@@ -33,7 +33,7 @@ Generate questions and answers that:
 -  help students purify Ukrainian language from surzhyk words
 - give examples of how to use ukrainian words instead of russian words or russian loanwords.
 - most used russian words, loanwords or surzhyk  should have correct translation in Ukrainian.
- Both questions and answers should be in Ukrainian.`;
+ Both questions and answers should be in Ukrainian and concise.`;
     }
 
     // For other subjects, use the standard prompts
@@ -42,8 +42,8 @@ Generate questions and answers that:
       string
     > = {
       English: `${basePrompt} English language. Focus on grammar, vocabulary, and practical usage. Generate questions that test understanding of English language concepts. Help students prepare for IELTS exam C1 level.`,
-      "Node.js": `${basePrompt} Node.js development. Focus on best practices, common patterns, and real-world scenarios. Generate questions about Node.js concepts, APIs, and problem-solving. Help students prepare for Node.js technical interview.`,
-      TypeScript: `${basePrompt} TypeScript programming. Focus on type system, interfaces, and TypeScript-specific features. Generate questions about TypeScript concepts and practical usage. Help students prepare for TypeScript technical interview.`,
+      "Node.js": `${basePrompt} Node.js development. Focus on best practices, common patterns, and real-world scenarios. Generate questions about Node.js concepts, APIs, and problem-solving. Help students prepare for Node.js technical interview asking short questions.Code blocks should be enclosed in \`\`\` tags.`,
+      TypeScript: `${basePrompt} TypeScript programming. Focus on type system, interfaces, and TypeScript-specific features. Generate questions about TypeScript concepts and practical usage. Help students prepare for TypeScript technical interview asking short questions. Code blocks should be enclosed in \`\`\` tags.`,
     };
 
     // Since we already handled Ukrainian case above, we can return directly

@@ -278,7 +278,7 @@ export class SchedulerService {
               // Add a web specific object
               webpush: {
                 fcm_options: {
-                  link: `/questions/${data.question_id}`,
+                  link: `/Tutor/questions/${data.question_id}`,
                 },
               },
             },
