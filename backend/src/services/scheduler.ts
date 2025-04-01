@@ -319,17 +319,35 @@ export class SchedulerService {
 
   // Get OAuth access token using Google Application Default Credentials
   private async getAccessToken(): Promise<string> {
-    // This is a simple implementation using the google-auth-library package
-    // You'll need to add this package to your dependencies
     const { GoogleAuth } = require("google-auth-library");
 
-    const auth = new GoogleAuth({
-      scopes: "https://www.googleapis.com/auth/firebase.messaging",
-    });
+    try {
+      let credentials;
+      if (process.env.FIREBASE_ADMIN_CREDENTIALS) {
+        try {
+          credentials = JSON.parse(process.env.FIREBASE_ADMIN_CREDENTIALS);
+        } catch (parseError) {
+          console.error(
+            "Error parsing FIREBASE_ADMIN_CREDENTIALS:",
+            parseError
+          );
 
-    const client = await auth.getClient();
-    const accessToken = await client.getAccessToken();
-    return accessToken.token;
+          throw new Error("Invalid Firebase credentials format");
+        }
+      }
+
+      const auth = new GoogleAuth({
+        credentials: credentials,
+        scopes: "https://www.googleapis.com/auth/firebase.messaging",
+      });
+
+      const client = await auth.getClient();
+      const accessToken = await client.getAccessToken();
+      return accessToken.token;
+    } catch (error) {
+      console.error("Error getting access token:", error);
+      throw error;
+    }
   }
 
   private async selectSubject(userPref: UserPreference): Promise<string> {
