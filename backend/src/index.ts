@@ -87,7 +87,7 @@ function timeToCronExpression(time: string): string {
 // New endpoint to set up a daily cron job for notifications
 app.post("/api/test-cron-notification", async (req, res) => {
   try {
-    const { time, userId, jobId = "default" } = req.body;
+    const { time, user_id: userId, jobId = "default" } = req.body;
 
     // Validate time format (HH:mm)
     if (!time || !isValidTime(time)) {
