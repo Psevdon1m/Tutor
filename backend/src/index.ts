@@ -1,5 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
+import cors from "cors";
 import { OpenAIService } from "./services/openai";
 import { SchedulerService } from "./services/scheduler";
 import { subjects, Subject } from "./types/subject";
@@ -8,6 +9,19 @@ import cron from "node-cron";
 dotenv.config();
 
 const app = express();
+
+// CORS configuration
+const corsOptions = {
+  origin: process.env.FRONTEND_URL || [
+    "http://localhost:3000",
+    "http://localhost:3001",
+  ],
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
 const openAIService = new OpenAIService();
