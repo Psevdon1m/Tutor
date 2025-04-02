@@ -346,7 +346,7 @@ app.listen(PORT, async () => {
 // Endpoint to update user's notification schedule
 app.post("/api/update-notification-schedule", async (req, res) => {
   try {
-    const { userId } = req.body;
+    const { user_id: userId } = req.body;
 
     if (!userId) {
       return res.status(400).json({
