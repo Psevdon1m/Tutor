@@ -360,15 +360,15 @@ app.listen(PORT, async () => {
 // Endpoint to update user's notification schedule
 app.post("/api/update-notification-schedule", async (req, res) => {
   try {
-    const { user_id: userId } = req.body;
+    const { user_id } = req.body;
 
-    if (!userId) {
+    if (!user_id) {
       return res.status(400).json({
-        error: "userId is required",
+        error: "user_id is required",
       });
     }
 
-    const result = await setupUserNotificationSchedule(userId);
+    const result = await setupUserNotificationSchedule(user_id);
 
     if (!result) {
       return res.status(404).json({
