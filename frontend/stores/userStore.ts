@@ -36,6 +36,10 @@ export const useUserStore = defineStore("userStore", {
           {
             method: "POST",
             body: JSON.stringify({ user_id }),
+            credentials: "include",
+            headers: {
+              "Content-Type": "application/json",
+            },
           }
         );
         const data = await result.json();
