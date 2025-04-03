@@ -258,7 +258,7 @@ async function setupUserNotificationSchedule(userId: string) {
     switch (userPref.notification_frequency) {
       case 3: // Three times a day
         schedules.push(
-          { time: "10:25", label: "morning" },
+          { time: "10:30", label: "morning" },
           { time: "11:00", label: "afternoon" },
           { time: "11:25", label: "evening" }
         );
