@@ -258,19 +258,19 @@ async function setupUserNotificationSchedule(userId: string) {
     switch (userPref.notification_frequency) {
       case 3: // Three times a day
         schedules.push(
-          { time: "10:17", label: "morning" },
-          { time: "15:00", label: "afternoon" },
-          { time: "18:00", label: "evening" }
+          { time: "10:25", label: "morning" },
+          { time: "11:00", label: "afternoon" },
+          { time: "11:25", label: "evening" }
         );
         break;
       case 2: // Twice a day
         schedules.push(
-          { time: "10:17", label: "morning" },
-          { time: "15:00", label: "afternoon" }
+          { time: "10:25", label: "morning" },
+          { time: "11:00", label: "afternoon" }
         );
         break;
       case 1: // Once a day
-        schedules.push({ time: "10:17", label: "morning" });
+        schedules.push({ time: "10:25", label: "morning" });
         break;
       default:
         console.error(`Invalid notification frequency for user ${userId}`);

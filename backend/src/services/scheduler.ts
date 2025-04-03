@@ -36,19 +36,19 @@ export class SchedulerService {
   // Schedule all notifications
   public setupSchedules() {
     // Morning schedule - 8 AM UTC (all frequencies)
-    cron.schedule("10 17 * * *", () => {
+    cron.schedule("10 25 * * *", () => {
       // Get all users with any notification frequency (1, 2, or 3)
       this.processNotificationsForTime("morning");
     });
 
     // Afternoon schedule - 12 PM UTC (only frequencies 2 and 3)
-    cron.schedule("0 15 * * *", () => {
+    cron.schedule("0 11 * * *", () => {
       // Get only users with frequencies 2 or 3
       this.processNotificationsForTime("afternoon");
     });
 
     // Evening schedule - 6 PM UTC (only frequency 3)
-    cron.schedule("0 18 * * *", () => {
+    cron.schedule("25 11 * * *", () => {
       // Get only users with frequency 3
       this.processNotificationsForTime("evening");
     });
