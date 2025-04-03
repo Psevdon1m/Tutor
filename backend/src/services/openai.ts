@@ -1,9 +1,10 @@
-import OpenAI from "openai";
-import { Subject } from "../types/subject";
-import { parseResponseJson } from "../utils/json-parser";
+const OpenAI = require("openai");
+
+const { Subject } = require("../types/subject");
+const { parseResponseJson } = require("../utils/json-parser");
 
 export class OpenAIService {
-  private openai: OpenAI;
+  private openai: typeof OpenAI;
   private ukrainianPdfUrl: string;
 
   constructor() {
@@ -19,7 +20,7 @@ export class OpenAIService {
   /**
    * Gets the system prompt for a subject, including PDF URL for Ukrainian
    */
-  private getSystemPromptWithContent(subject: Subject): string {
+  private getSystemPromptWithContent(subject: typeof Subject): string {
     const basePrompt = "You are an experienced tutor specializing in";
 
     // For Ukrainian, include the PDF URL
@@ -38,7 +39,7 @@ Generate questions and answers that:
 
     // For other subjects, use the standard prompts
     const subjectSpecificPrompts: Record<
-      Exclude<Subject, "Ukrainian">,
+      Exclude<typeof Subject, "Ukrainian">,
       string
     > = {
       English: `${basePrompt} English language. Focus on grammar, vocabulary, and practical usage. Generate questions that test understanding of English language concepts. Help students prepare for IELTS exam C1 level.`,
@@ -47,14 +48,16 @@ Generate questions and answers that:
     };
 
     // Since we already handled Ukrainian case above, we can return directly
-    return subjectSpecificPrompts[subject as Exclude<Subject, "Ukrainian">];
+    return subjectSpecificPrompts[
+      subject as Exclude<typeof Subject, "Ukrainian">
+    ];
   }
 
   /**
    * Generates a question and answer based on subject, using PDF URL for Ukrainian
    */
   async generateQuestion(
-    subject: Subject
+    subject: typeof Subject
   ): Promise<{ question: string; answer: string; response_id: string }> {
     try {
       // Get the appropriate prompt with content

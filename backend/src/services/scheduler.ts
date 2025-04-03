@@ -1,7 +1,7 @@
-import cron from "node-cron";
-import { createClient } from "@supabase/supabase-js";
-import fetch from "node-fetch";
-import { Subject } from "../types/subject";
+const cron = require("node-cron");
+const { createClient } = require("@supabase/supabase-js");
+const fetch = require("node-fetch");
+const { Subject } = require("../types/subject");
 
 // Define the types
 interface UserPreference {
@@ -377,7 +377,7 @@ export class SchedulerService {
     if (recentSubjects.length >= availableSubjects.length) {
       // Sort subjects by how recently they were used
       const subjectFrequency: Record<string, number> = {};
-      recentSubjects.forEach((item) => {
+      recentSubjects.forEach((item: { subject_id: string }) => {
         subjectFrequency[item.subject_id] =
           (subjectFrequency[item.subject_id] || 0) + 1;
       });
@@ -392,7 +392,7 @@ export class SchedulerService {
 
     // Get subjects not used today
     const usedSubjectIds = new Set(
-      recentSubjects.map((item) => item.subject_id)
+      recentSubjects.map((item: { subject_id: string }) => item.subject_id)
     );
     const unusedSubjects = availableSubjects.filter(
       (id) => !usedSubjectIds.has(id)
