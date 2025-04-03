@@ -29,13 +29,14 @@ export class SchedulerService {
     );
 
     this.apiBaseUrl =
-      process.env.API_BASE_URL || "https://tutor-backend-9s28.onrender.com";
+      process.env.API_BASE_URL ||
+      "https://tutor-production-a449.up.railway.app";
   }
 
   // Schedule all notifications
   public setupSchedules() {
     // Morning schedule - 8 AM UTC (all frequencies)
-    cron.schedule("10 10 * * *", () => {
+    cron.schedule("10 17 * * *", () => {
       // Get all users with any notification frequency (1, 2, or 3)
       this.processNotificationsForTime("morning");
     });
@@ -198,7 +199,7 @@ export class SchedulerService {
         .from("user_preferences")
         .update({
           last_subject_update: new Date().toISOString(),
-          recent_subjects: [...userPref.recent_subjects, subjectId],
+          recent_subjects: [...(userPref.recent_subjects || []), subjectId],
         })
         .eq("user_id", userPref.user_id);
 
