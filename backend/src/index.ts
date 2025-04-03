@@ -144,7 +144,7 @@ app.post("/api/test-cron-notification", async (req, res) => {
 
           // Process notifications for found users in parallel
           await Promise.all(
-            userPreferences.map(async (userPref) => {
+            userPreferences.map(async (userPref: any) => {
               try {
                 await schedulerService["processUserNotification"](userPref);
                 console.log(
