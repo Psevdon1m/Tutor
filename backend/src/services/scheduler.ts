@@ -33,28 +33,28 @@ export class SchedulerService {
       "https://tutor-production-a449.up.railway.app";
   }
 
-  // Schedule all notifications
-  public setupSchedules() {
-    // Morning schedule - 10:40 UTC (all frequencies)
-    cron.schedule("40 10 * * *", () => {
-      // Get all users with any notification frequency (1, 2, or 3)
-      this.processNotificationsForTime("morning");
-    });
+  // // Schedule all notifications
+  // public setupSchedules() {
+  //   // Morning schedule - 10:40 UTC (all frequencies)
+  //   cron.schedule("40 10 * * *", () => {
+  //     // Get all users with any notification frequency (1, 2, or 3)
+  //     this.processNotificationsForTime("morning");
+  //   });
 
-    // Afternoon schedule - 11:00 UTC (only frequencies 2 and 3)
-    cron.schedule("0 11 * * *", () => {
-      // Get only users with frequencies 2 or 3
-      this.processNotificationsForTime("afternoon");
-    });
+  //   // Afternoon schedule - 11:00 UTC (only frequencies 2 and 3)
+  //   cron.schedule("0 11 * * *", () => {
+  //     // Get only users with frequencies 2 or 3
+  //     this.processNotificationsForTime("afternoon");
+  //   });
 
-    // Evening schedule - 11:25 UTC (only frequency 3)
-    cron.schedule("25 11 * * *", () => {
-      // Get only users with frequency 3
-      this.processNotificationsForTime("evening");
-    });
+  //   // Evening schedule - 11:25 UTC (only frequency 3)
+  //   cron.schedule("25 11 * * *", () => {
+  //     // Get only users with frequency 3
+  //     this.processNotificationsForTime("evening");
+  //   });
 
-    console.log("Notification schedules set up");
-  }
+  //   console.log("Notification schedules set up");
+  // }
 
   // New method to process notifications based on time of day
   private async processNotificationsForTime(

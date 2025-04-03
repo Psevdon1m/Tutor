@@ -34,7 +34,7 @@ const activeCronJobs = new Map<
 >();
 
 // Set up the scheduler
-schedulerService.setupSchedules();
+// schedulerService.setupSchedules();
 
 // Test endpoint to generate a question for a specific subject
 app.post("/api/generate-question", async (req, res) => {
