@@ -32,7 +32,7 @@ export const useUserStore = defineStore("userStore", {
     async updateCronJobs(user_id: string) {
       try {
         const result = await fetch(
-          "https://tutor-backend-9s28.onrender.com/api/update-notification-schedule",
+          "https://tutor-production-a449.up.railway.app/api/update-notification-schedule",
           {
             method: "POST",
             body: JSON.stringify({ user_id }),
