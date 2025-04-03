@@ -1,7 +1,6 @@
 const cron = require("node-cron");
 const { createClient } = require("@supabase/supabase-js");
-const fetch = require("node-fetch");
-const { Subject } = require("../types/subject");
+import fetch from "node-fetch";
 
 // Define the types
 interface UserPreference {
