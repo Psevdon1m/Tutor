@@ -245,117 +245,46 @@ app.post("/api/update-notification-schedule", async (req, res) => {
 // api to send first notification after user selected subjects
 app.post("/api/require-first-notification", async (req, res) => {
   try {
-    const { time, user_id: userId, jobId = "default" } = req.body;
+    const { user_id: userId } = req.body;
 
-    // Validate time format (HH:mm)
-    if (!time || !isValidTime(time)) {
-      return res.status(400).json({
-        error:
-          "Invalid time format. Please provide time in HH:mm format (24-hour)",
-      });
-    }
-
-    // Stop existing cron job with the same ID if it exists
-    if (activeCronJobs.has(jobId)) {
-      activeCronJobs.get(jobId)?.job.stop();
-      activeCronJobs.delete(jobId);
-      console.log(`Stopped existing cron job: ${jobId}`);
-    }
-
-    // Create the cron expression for the specified time
-    const cronExpression = timeToCronExpression(time);
-    console.log(
-      `Setting up cron job ${jobId} with expression: ${cronExpression}`
-    );
-
-    // Set up the cron job
-    const job = cron.schedule(
-      cronExpression,
-      async () => {
-        console.log(
-          `Executing cron job ${jobId} at ${new Date().toISOString()}`
-        );
-        try {
-          // Get user preferences if userId is provided
-          let userQuery = schedulerService["supabase"]
-            .from("user_preferences")
-            .select("*")
-            .not("fcm_token", "is", null)
-            .eq("user_id", userId);
-
-          if (userId) {
-            userQuery = userQuery.eq("user_id", userId);
-          }
-
-          const { data: userPreferences, error: userError } = await userQuery;
-
-          if (userError) {
-            console.error(`Cron job ${jobId} error:`, userError);
-            return;
-          }
-
-          if (!userPreferences || userPreferences.length === 0) {
-            console.log(`Cron job ${jobId}: No eligible users found`);
-            return;
-          }
-
-          console.log(`Found ${userPreferences.length} users to notify`);
-
-          // Process notifications for found users in parallel
-          await Promise.all(
-            userPreferences.map(async (userPref: any) => {
-              try {
-                await schedulerService["processUserNotification"](userPref);
-                console.log(
-                  `Cron job ${jobId}: Processed notification for user ${userPref.user_id}`
-                );
-              } catch (error) {
-                console.error(
-                  `Cron job ${jobId}: Error processing user ${userPref.user_id}:`,
-                  error
-                );
-              }
-            })
-          );
-          activeCronJobs.get(jobId)?.job.stop();
-          activeCronJobs.delete(jobId);
-        } catch (error) {
-          console.error(`Cron job ${jobId} execution error:`, error);
-        }
-      },
-      {
-        scheduled: true,
-        timezone: "UTC", // Explicitly set timezone to UTC
-      }
-    );
-
-    // Store the job with its time
-    activeCronJobs.set(jobId, { job, time });
-
-    const now = new Date();
-    const nextRun = new Date(now);
-    nextRun.setHours(
-      parseInt(time.split(":")[0]),
-      parseInt(time.split(":")[1]),
-      0,
-      0
-    );
-    if (nextRun < now) {
-      nextRun.setDate(nextRun.getDate() + 1);
-    }
-
+    // Send response immediately to client
     res.json({
-      message: "Cron job scheduled successfully",
+      message: "Notification will be sent shortly",
       details: {
-        jobId,
-        time,
-        cronExpression,
-        userId: userId || "all users",
-        scheduledTime: time,
-        currentServerTime: now.toISOString(),
-        nextExpectedRun: nextRun.toISOString(),
+        userId,
+        scheduledTime: new Date(Date.now() + 2000).toISOString(), // 2 seconds from now
       },
     });
+
+    try {
+      // Get user preferences
+      const { data: userPreferences, error: userError } =
+        await schedulerService["supabase"]
+          .from("user_preferences")
+          .select("*")
+          .not("fcm_token", "is", null)
+          .eq("user_id", userId)
+          .single();
+
+      if (userError) {
+        console.error(`Error fetching user preferences:`, userError);
+        return;
+      }
+
+      if (!userPreferences) {
+        console.log(`No eligible user found for ID: ${userId}`);
+        return;
+      }
+
+      // Process the notification
+      await schedulerService["processUserNotification"](userPreferences);
+      console.log(`Processed first notification for user ${userId}`);
+    } catch (error) {
+      console.error(
+        `Error processing first notification for user ${userId}:`,
+        error
+      );
+    }
   } catch (error) {
     console.error("Error:", error);
     res.status(500).json({
