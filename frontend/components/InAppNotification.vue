@@ -9,7 +9,8 @@
   >
     <div
       v-if="show"
-      class="fixed top-4 left-4 max-w-sm w-90 bg-white shadow-lg rounded-lg pointer-events-auto ring-2 ring-gray-400 ring-opacity-5 overflow-hidden z-50"
+      class="fixed top-4 left-4 max-w-sm w-90 bg-white shadow-lg rounded-lg pointer-events-auto ring-2 ring-gray-400 ring-opacity-5 overflow-hidden z-50 hover:cursor-pointer"
+      @click.stop="openQuestion"
     >
       <div class="p-4">
         <div class="flex items-start">
@@ -30,7 +31,7 @@
           </div>
           <div class="ml-4 flex-shrink-0 flex">
             <button
-              @click="closeNotification"
+              @click.stop="closeNotification"
               class="bg-white rounded-md inline-flex text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
               <span class="sr-only">Close</span>
@@ -59,10 +60,17 @@ const props = defineProps<{
   title: string;
   body: string;
   show: boolean;
+  data?: any;
 }>();
 
 const emit = defineEmits(["close"]);
-
+const openQuestion = () => {
+  if (props.data.question_id) {
+    navigateTo("/questions/" + props.data.question_id);
+  } else {
+    closeNotification();
+  }
+};
 const closeNotification = () => {
   emit("close");
 };

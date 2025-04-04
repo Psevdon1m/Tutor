@@ -5,8 +5,10 @@ import {
   onMessage,
   type MessagePayload,
 } from "firebase/messaging";
+import { useNotification } from "./useNotification";
 
 export const useFirebase = () => {
+  const { showNotification } = useNotification();
   const config = useRuntimeConfig();
   const firebaseConfig = {
     apiKey: config.public.FIREBASE_API_KEY as string,
@@ -40,16 +42,16 @@ export const useFirebase = () => {
           serviceWorkerRegistration: registration,
         });
         localStorage.setItem("fcm_token", token);
-        alert("Notification permission granted");
+        showNotification("Success", "Notification permission granted");
         return token;
       }
       localStorage.removeItem("fcm_token");
-      alert("Notification permission denied");
+      showNotification("Error", "Notification permission denied");
       throw new Error("Notification permission denied");
     } catch (error) {
       console.error("Error getting permission:", error);
       localStorage.removeItem("fcm_token");
-      alert("Error getting permission");
+      showNotification("Error", "Error getting permission");
       throw error;
     }
   };

@@ -60,6 +60,7 @@ const userStore = useUserStore();
 const userPreferences = computed(() => userStore.getUserPreferences);
 const frequencies = [1, 2, 3];
 const user = useSupabaseUser();
+const shouldReceiveTestNotification = ref(false);
 
 const supabase = useSupabaseClient<Database>();
 const isSubmitting = ref(false);
@@ -118,7 +119,6 @@ const shouldUpdateFrequency = computed(() => {
 
 const updateCurrentUserSubjects = () => {
   if (userPreferences.value && userPreferences.value.subjects) {
-    console.log("User preferences found ", userPreferences.value);
     submitForm.value.subjects = userPreferences.value.subjects.reduce(
       (acc: Record<string, boolean>, subjectId: string) => {
         acc[subjectId] = true;
@@ -126,10 +126,6 @@ const updateCurrentUserSubjects = () => {
       },
       {} as Record<string, boolean>
     );
-    console.log({
-      formSubj: submitForm.value.subjects,
-      storeSubj: userPreferences.value.subjects,
-    });
     submitForm.value.frequencies = userPreferences.value.notification_frequency;
   } else {
     console.log("No user preferences found");
@@ -143,6 +139,9 @@ onMounted(async () => {
 
 async function savePreferences() {
   if (!user.value) return;
+  if (userPreferences.value.subjects.length === 0) {
+    shouldReceiveTestNotification.value = true;
+  }
 
   isSubmitting.value = true;
   try {
@@ -154,13 +153,14 @@ async function savePreferences() {
     });
 
     if (error) throw error;
-    console.log("Preferences saved successfully");
     userStore.fetchUserPreferences(user.value.id);
     userStore.updateCronJobs(user.value.id);
+    userStore.requireFirstNotification(user.value.id);
   } catch (err) {
     console.error("Error saving preferences:", err);
   } finally {
     isSubmitting.value = false;
+    shouldReceiveTestNotification.value = false;
   }
 }
 watch(

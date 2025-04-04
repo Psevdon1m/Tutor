@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-
+import { getTimeInTwoSeconds } from "~/utils/helper";
 import type { UserPreferences } from "~/types/db/preferences";
 
 export const useUserStore = defineStore("userStore", {
@@ -46,6 +46,24 @@ export const useUserStore = defineStore("userStore", {
         console.log(data);
       } catch (error) {
         console.error("Error updating cron jobs:", error);
+      }
+    },
+    async requireFirstNotification(user_id: string) {
+      try {
+        const time = getTimeInTwoSeconds();
+        const result = await fetch(
+          "https://tutor-production-a449.up.railway.app/api/require-first-notification",
+          {
+            method: "POST",
+            body: JSON.stringify({ user_id, time }),
+            credentials: "include",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+      } catch (error) {
+        console.error("Error requiring first notification:", error);
       }
     },
     resetUserPreferences() {

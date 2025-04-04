@@ -71,15 +71,21 @@ app.post("/api/trigger-notifications", async (req, res) => {
 
 // Helper function to validate time format
 function isValidTime(time: string): boolean {
-  const timeRegex = /^([01]?[0-9]|2[0-3]):([0-5][0-9])$/;
+  // Accept both HH:mm and HH:mm:ss formats
+  const timeRegex = /^([01]?[0-9]|2[0-3]):([0-5][0-9])(?::([0-5][0-9]))?$/;
   return timeRegex.test(time);
 }
 
 // Helper function to convert time to cron expression
 function timeToCronExpression(time: string): string {
-  const [hours, minutes] = time.split(":");
-  // Ensure hours and minutes are properly padded
-  const cronExp = `${parseInt(minutes)} ${parseInt(hours)} * * *`;
+  // Split time into components
+  const parts = time.split(":");
+  const hours = parseInt(parts[0]);
+  const minutes = parseInt(parts[1]);
+  const seconds = parts.length === 3 ? parseInt(parts[2]) : 0;
+
+  // Create cron expression with seconds if provided
+  const cronExp = `${seconds} ${minutes} ${hours} * * *`;
   console.log(`Creating cron expression for ${time} -> ${cronExp}`);
   return cronExp;
 }
@@ -158,6 +164,161 @@ app.post("/api/test-cron-notification", async (req, res) => {
               }
             })
           );
+        } catch (error) {
+          console.error(`Cron job ${jobId} execution error:`, error);
+        }
+      },
+      {
+        scheduled: true,
+        timezone: "UTC", // Explicitly set timezone to UTC
+      }
+    );
+
+    // Store the job with its time
+    activeCronJobs.set(jobId, { job, time });
+
+    const now = new Date();
+    const nextRun = new Date(now);
+    nextRun.setHours(
+      parseInt(time.split(":")[0]),
+      parseInt(time.split(":")[1]),
+      0,
+      0
+    );
+    if (nextRun < now) {
+      nextRun.setDate(nextRun.getDate() + 1);
+    }
+
+    res.json({
+      message: "Cron job scheduled successfully",
+      details: {
+        jobId,
+        time,
+        cronExpression,
+        userId: userId || "all users",
+        scheduledTime: time,
+        currentServerTime: now.toISOString(),
+        nextExpectedRun: nextRun.toISOString(),
+      },
+    });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({
+      error: "Internal server error",
+      details: error instanceof Error ? error.message : "Unknown error",
+    });
+  }
+});
+
+// Endpoint to update user's notification schedule
+app.post("/api/update-notification-schedule", async (req, res) => {
+  try {
+    const { user_id } = req.body;
+
+    if (!user_id) {
+      return res.status(400).json({
+        error: "user_id is required",
+      });
+    }
+
+    const result = await setupUserNotificationSchedule(user_id);
+
+    if (!result) {
+      return res.status(404).json({
+        error: "Failed to set up user notification schedule",
+      });
+    }
+
+    res.json({
+      message: "Notification schedule updated successfully",
+      ...result,
+    });
+  } catch (error) {
+    console.error("Error updating notification schedule:", error);
+    res.status(500).json({
+      error: "Internal server error",
+      details: error instanceof Error ? error.message : "Unknown error",
+    });
+  }
+});
+
+// api to send first notification after user selected subjects
+app.post("/api/require-first-notification", async (req, res) => {
+  try {
+    const { time, user_id: userId, jobId = "default" } = req.body;
+
+    // Validate time format (HH:mm)
+    if (!time || !isValidTime(time)) {
+      return res.status(400).json({
+        error:
+          "Invalid time format. Please provide time in HH:mm format (24-hour)",
+      });
+    }
+
+    // Stop existing cron job with the same ID if it exists
+    if (activeCronJobs.has(jobId)) {
+      activeCronJobs.get(jobId)?.job.stop();
+      activeCronJobs.delete(jobId);
+      console.log(`Stopped existing cron job: ${jobId}`);
+    }
+
+    // Create the cron expression for the specified time
+    const cronExpression = timeToCronExpression(time);
+    console.log(
+      `Setting up cron job ${jobId} with expression: ${cronExpression}`
+    );
+
+    // Set up the cron job
+    const job = cron.schedule(
+      cronExpression,
+      async () => {
+        console.log(
+          `Executing cron job ${jobId} at ${new Date().toISOString()}`
+        );
+        try {
+          // Get user preferences if userId is provided
+          let userQuery = schedulerService["supabase"]
+            .from("user_preferences")
+            .select("*")
+            .not("fcm_token", "is", null)
+            .eq("user_id", userId);
+
+          if (userId) {
+            userQuery = userQuery.eq("user_id", userId);
+          }
+
+          const { data: userPreferences, error: userError } = await userQuery;
+
+          if (userError) {
+            console.error(`Cron job ${jobId} error:`, userError);
+            return;
+          }
+
+          if (!userPreferences || userPreferences.length === 0) {
+            console.log(`Cron job ${jobId}: No eligible users found`);
+            return;
+          }
+
+          console.log(`Found ${userPreferences.length} users to notify`);
+
+          // Process notifications for found users in parallel
+          await Promise.all(
+            userPreferences.map(async (userPref: any) => {
+              try {
+                await schedulerService["processUserNotification"](userPref);
+                console.log(
+                  `Cron job ${jobId}: Processed notification for user ${userPref.user_id}`
+                );
+              } catch (error) {
+                console.error(
+                  `Cron job ${jobId}: Error processing user ${userPref.user_id}:`,
+                  error
+                );
+              }
+            })
+          );
+          activeCronJobs.get(jobId)?.job.stop();
+          activeCronJobs.delete(jobId);
         } catch (error) {
           console.error(`Cron job ${jobId} execution error:`, error);
         }
@@ -354,37 +515,5 @@ app.listen(PORT, async () => {
     }
   } catch (error) {
     console.error("Error initializing notification schedules:", error);
-  }
-});
-
-// Endpoint to update user's notification schedule
-app.post("/api/update-notification-schedule", async (req, res) => {
-  try {
-    const { user_id } = req.body;
-
-    if (!user_id) {
-      return res.status(400).json({
-        error: "user_id is required",
-      });
-    }
-
-    const result = await setupUserNotificationSchedule(user_id);
-
-    if (!result) {
-      return res.status(404).json({
-        error: "Failed to set up user notification schedule",
-      });
-    }
-
-    res.json({
-      message: "Notification schedule updated successfully",
-      ...result,
-    });
-  } catch (error) {
-    console.error("Error updating notification schedule:", error);
-    res.status(500).json({
-      error: "Internal server error",
-      details: error instanceof Error ? error.message : "Unknown error",
-    });
   }
 });
