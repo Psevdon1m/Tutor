@@ -30,9 +30,14 @@ export const useUserStore = defineStore("userStore", {
       }
     },
     async updateCronJobs(user_id: string) {
+      const config = useRuntimeConfig();
+      const isLocalhost = config.public.mode === "localhost";
+      console.log({ isLocalhost });
       try {
         const result = await fetch(
-          "https://tutor-production-a449.up.railway.app/api/update-notification-schedule",
+          isLocalhost
+            ? "http://localhost:3001/api/update-notification-schedule"
+            : "https://tutor-production-a449.up.railway.app/api/update-notification-schedule",
           {
             method: "POST",
             body: JSON.stringify({ user_id }),
@@ -49,10 +54,15 @@ export const useUserStore = defineStore("userStore", {
       }
     },
     async requireFirstNotification(user_id: string) {
+      const config = useRuntimeConfig();
+      const isLocalhost = config.public.mode === "localhost";
+      console.log({ isLocalhost });
       try {
         const time = getTimeInSeconds(1);
-        const result = await fetch(
-          "https://tutor-production-a449.up.railway.app/api/require-first-notification",
+        await fetch(
+          isLocalhost
+            ? "http://localhost:3001/api/require-first-notification"
+            : "https://tutor-production-a449.up.railway.app/api/require-first-notification",
           {
             method: "POST",
             body: JSON.stringify({ user_id, time }),
@@ -64,6 +74,37 @@ export const useUserStore = defineStore("userStore", {
         );
       } catch (error) {
         console.error("Error requiring first notification:", error);
+      }
+    },
+
+    async pregenerateQuestion(
+      user_id: string,
+      subject_id: string,
+      subject: string
+    ) {
+      const config = useRuntimeConfig();
+      const isLocalhost = config.public.mode === "localhost";
+      console.log({ isLocalhost });
+      try {
+        await fetch(
+          isLocalhost
+            ? "http://localhost:3001/api/pre-generate-response-from-openai"
+            : "https://tutor-production-a449.up.railway.app/api/pre-generate-response-from-openai",
+          {
+            method: "POST",
+            body: JSON.stringify({
+              user_id,
+              subject_id,
+              subject: subject === "Українська" ? "Ukrainian" : subject,
+            }),
+            credentials: "include",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+      } catch (error) {
+        console.error("Error pregenerating question:", error);
       }
     },
     resetUserPreferences() {

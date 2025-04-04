@@ -3,8 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "tsx scripts/generate-sw.ts && nuxt build",
-    "dev": "nuxt dev",
+    "build": "tsx scripts/generate-sw.ts && nuxt build --dotenv .env.production ",
+    "dev": "nuxt dev --dotenv .env.localhost",
     "generate": "tsx scripts/generate-sw.ts && nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",

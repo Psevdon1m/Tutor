@@ -122,78 +122,127 @@ export class SchedulerService {
       // Use the new subject selection method
       const subjectId = await this.selectSubject(userPref);
 
-      // Get the subject name from the subjects table
-      const { data: subjectData, error: subjectError } = await this.supabase
-        .from("subjects")
-        .select("name")
-        .eq("id", subjectId)
-        .single();
+      const pregeneratedQuestions = await this.supabase
+        .from("pregenerated_questions")
+        .select("*")
+        .eq("user_id", userPref.user_id)
+        .eq("subject_id", subjectId);
 
-      if (subjectError || !subjectData) {
-        console.error(
-          `Error fetching subject name for ${subjectId}:`,
-          subjectError
-        );
-        return;
-      }
+      if (pregeneratedQuestions.data.length > 0) {
+        const question = pregeneratedQuestions.data[0];
+        // Save question and answer to the database
+        const { error: saveError, data: savedQuestion } = await this.supabase
+          .from("questions")
+          .insert({
+            user_id: userPref.user_id,
+            subject_id: subjectId,
+            question_text: question.question_text,
+            answer_text: question.answer_text,
+            response_id: question.response_id,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          })
+          .select()
+          .single();
 
-      // Generate question and answer
-      const questionResponse = await fetch(
-        `${this.apiBaseUrl}/api/generate-question`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            subject:
-              subjectData.name === "Українська"
-                ? "Ukrainian"
-                : subjectData.name,
-          }),
+        if (saveError) {
+          throw saveError;
         }
-      );
 
-      if (!questionResponse.ok) {
-        console.log(JSON.stringify(questionResponse));
-        throw new Error(
-          `API request failed with status ${questionResponse.status}`
+        await this.sendPushNotification(
+          userPref.fcm_token,
+          `Your first question`,
+          `${savedQuestion.question_text.substring(0, 100)}...`,
+          {
+            question_id: savedQuestion.id,
+            subject: "",
+          },
+          savedQuestion.id
+        );
+        await this.supabase
+          .from("pregenerated_questions")
+          .delete()
+          .eq("id", question.id);
+        console.log(
+          `Processed notification for user ${userPref.user_id} from pregenerated questions`
+        );
+      } else {
+        // Get the subject name from the subjects table
+        const { data: subjectData, error: subjectError } = await this.supabase
+          .from("subjects")
+          .select("name")
+          .eq("id", subjectId)
+          .single();
+
+        if (subjectError || !subjectData) {
+          console.error(
+            `Error fetching subject name for ${subjectId}:`,
+            subjectError
+          );
+          return;
+        }
+
+        // Generate question and answer
+        const questionResponse = await fetch(
+          `${this.apiBaseUrl}/api/generate-question`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              subject:
+                subjectData.name === "Українська"
+                  ? "Ukrainian"
+                  : subjectData.name,
+            }),
+          }
+        );
+
+        if (!questionResponse.ok) {
+          console.log(JSON.stringify(questionResponse));
+          throw new Error(
+            `API request failed with status ${questionResponse.status}`
+          );
+        }
+
+        const questionData = (await questionResponse.json()) as QnA;
+
+        // Save question and answer to the database
+        const { data: savedQuestion, error: saveError } = await this.supabase
+          .from("questions")
+          .insert({
+            user_id: userPref.user_id,
+            subject_id: subjectId,
+            question_text: questionData.question,
+            answer_text: questionData.answer,
+            response_id: questionData.response_id,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          })
+          .select()
+          .single();
+
+        if (saveError) {
+          throw saveError;
+        }
+
+        // Send push notification with FCM
+        await this.sendPushNotification(
+          userPref.fcm_token,
+          `Practicing ${subjectData.name}`,
+          `${questionData.question.substring(0, 100)}...`,
+          {
+            question_id: savedQuestion.id,
+            subject: subjectData.name,
+          },
+          savedQuestion.id
+        );
+
+        console.log(
+          `Processed notification for user ${userPref.user_id}, subject: ${subjectData.name}`
         );
       }
-
-      const questionData = (await questionResponse.json()) as QnA;
-
-      // Save question and answer to the database
-      const { data: savedQuestion, error: saveError } = await this.supabase
-        .from("questions")
-        .insert({
-          user_id: userPref.user_id,
-          subject_id: subjectId,
-          question_text: questionData.question,
-          answer_text: questionData.answer,
-          response_id: questionData.response_id,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        })
-        .select()
-        .single();
-
-      if (saveError) {
-        throw saveError;
-      }
-
-      // Send push notification with FCM
-      await this.sendPushNotification(
-        userPref.fcm_token,
-        `Practicing ${subjectData.name}`,
-        `${questionData.question.substring(0, 100)}...`,
-        {
-          question_id: savedQuestion.id,
-          subject: subjectData.name,
-        },
-        savedQuestion.id
-      );
-
       // After successful notification, update history if needed
       await this.supabase
         .from("user_preferences")
@@ -202,10 +251,6 @@ export class SchedulerService {
           recent_subjects: [...(userPref.recent_subjects || []), subjectId],
         })
         .eq("user_id", userPref.user_id);
-
-      console.log(
-        `Processed notification for user ${userPref.user_id}, subject: ${subjectData.name}`
-      );
     } catch (error) {
       console.error(
         `Error processing notification for user ${userPref.user_id}:`,

@@ -60,7 +60,9 @@ const userStore = useUserStore();
 const userPreferences = computed(() => userStore.getUserPreferences);
 const frequencies = [1, 2, 3];
 const user = useSupabaseUser();
-const shouldReceiveTestNotification = ref(false);
+const shouldReceiveTestNotification = computed(() => {
+  return userStore.getUserPreferences?.subjects.length === 0;
+});
 
 const supabase = useSupabaseClient<Database>();
 const isSubmitting = ref(false);
@@ -72,6 +74,9 @@ const toggleSubject = (subject: Subject) => {
   if (submitForm.value.subjects[subject.id]) {
     delete submitForm.value.subjects[subject.id];
   } else {
+    if (shouldReceiveTestNotification.value && user.value?.id) {
+      userStore.pregenerateQuestion(user.value?.id, subject.id, subject.name);
+    }
     submitForm.value.subjects[subject.id] = true;
   }
 };
@@ -139,9 +144,6 @@ onMounted(async () => {
 
 async function savePreferences() {
   if (!user.value) return;
-  if (userPreferences.value.subjects.length === 0) {
-    shouldReceiveTestNotification.value = true;
-  }
 
   isSubmitting.value = true;
   try {
@@ -155,12 +157,13 @@ async function savePreferences() {
     if (error) throw error;
     userStore.fetchUserPreferences(user.value.id);
     userStore.updateCronJobs(user.value.id);
-    userStore.requireFirstNotification(user.value.id);
+    if (shouldReceiveTestNotification.value) {
+      userStore.requireFirstNotification(user.value.id);
+    }
   } catch (err) {
     console.error("Error saving preferences:", err);
   } finally {
     isSubmitting.value = false;
-    shouldReceiveTestNotification.value = false;
   }
 }
 watch(

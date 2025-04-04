@@ -22,6 +22,7 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     public: {
+      mode: process.env.MODE,
       supabaseUrl: process.env.SUPABASE_URL,
       supabaseKey: process.env.SUPABASE_KEY,
       vapidKey: process.env.VAPID_KEY,

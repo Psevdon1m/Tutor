@@ -10,12 +10,29 @@ dotenv.config();
 
 const app = express();
 
-// CORS configuration
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  "http://localhost:3000",
+  "http://localhost:3001",
+].filter(Boolean); // filter(Boolean) removes any undefined/null values
+
 const corsOptions = {
-  origin: process.env.FRONTEND_URL || [
-    "http://localhost:3000",
-    "http://localhost:3001",
-  ],
+  origin: function (
+    origin: string | undefined,
+    callback: (err: Error | null, allow?: boolean) => void
+  ) {
+    // Allow requests with no origin (like mobile apps, curl, postman)
+    if (!origin) {
+      return callback(null, true);
+    }
+
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.log("Blocked origin:", origin);
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
@@ -68,27 +85,39 @@ app.post("/api/trigger-notifications", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+// API endpoint to manually trigger notifications for testing
+app.post("/api/pre-generate-response-from-openai", async (req, res) => {
+  try {
+    const { subject_id, subject, user_id } = req.body;
 
-// Helper function to validate time format
-function isValidTime(time: string): boolean {
-  // Accept both HH:mm and HH:mm:ss formats
-  const timeRegex = /^([01]?[0-9]|2[0-3]):([0-5][0-9])(?::([0-5][0-9]))?$/;
-  return timeRegex.test(time);
-}
+    const pregeneratedQuestions = await schedulerService["supabase"]
+      .from("pregenerated_questions")
+      .select("*")
+      .eq("subject_id", subject_id)
+      .eq("user_id", user_id);
 
-// Helper function to convert time to cron expression
-function timeToCronExpression(time: string): string {
-  // Split time into components
-  const parts = time.split(":");
-  const hours = parseInt(parts[0]);
-  const minutes = parseInt(parts[1]);
-  const seconds = parts.length === 3 ? parseInt(parts[2]) : 0;
+    if (pregeneratedQuestions.data && pregeneratedQuestions.data.length > 0) {
+      return res.json({
+        message: "Response already generated",
+        result: pregeneratedQuestions.data[0],
+      });
+    }
 
-  // Create cron expression with seconds if provided
-  const cronExp = `${seconds} ${minutes} ${hours} * * *`;
-  console.log(`Creating cron expression for ${time} -> ${cronExp}`);
-  return cronExp;
-}
+    const result = await openAIService.generateQuestion(subject as Subject);
+    await schedulerService["supabase"].from("pregenerated_questions").insert({
+      subject_id,
+      user_id,
+      question_text: result.question,
+      answer_text: result.answer,
+      response_id: result.response_id,
+    });
+
+    res.json({ message: "Response generated successfully", result });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 
 // New endpoint to set up a daily cron job for notifications
 app.post("/api/test-cron-notification", async (req, res) => {
@@ -316,6 +345,26 @@ app.delete("/api/cron-jobs/:jobId", (req, res) => {
   }
 });
 
+// Helper function to validate time format
+function isValidTime(time: string): boolean {
+  // Accept both HH:mm and HH:mm:ss formats
+  const timeRegex = /^([01]?[0-9]|2[0-3]):([0-5][0-9])(?::([0-5][0-9]))?$/;
+  return timeRegex.test(time);
+}
+
+// Helper function to convert time to cron expression
+function timeToCronExpression(time: string): string {
+  // Split time into components
+  const parts = time.split(":");
+  const hours = parseInt(parts[0]);
+  const minutes = parseInt(parts[1]);
+  const seconds = parts.length === 3 ? parseInt(parts[2]) : 0;
+
+  // Create cron expression with seconds if provided
+  const cronExp = `${seconds} ${minutes} ${hours} * * *`;
+  console.log(`Creating cron expression for ${time} -> ${cronExp}`);
+  return cronExp;
+}
 // Function to set up user's notification schedule
 async function setupUserNotificationSchedule(userId: string) {
   try {
