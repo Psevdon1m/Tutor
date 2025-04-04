@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { getTimeInTwoSeconds } from "~/utils/helper";
+import { getTimeInSeconds } from "~/utils/helper";
 import type { UserPreferences } from "~/types/db/preferences";
 
 export const useUserStore = defineStore("userStore", {
@@ -50,7 +50,7 @@ export const useUserStore = defineStore("userStore", {
     },
     async requireFirstNotification(user_id: string) {
       try {
-        const time = getTimeInTwoSeconds();
+        const time = getTimeInSeconds(1);
         const result = await fetch(
           "https://tutor-production-a449.up.railway.app/api/require-first-notification",
           {

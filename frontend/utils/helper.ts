@@ -1,10 +1,10 @@
 export const makeShort = (str: string, start: number, end: number) => {
   return str.slice(0, start) + "..." + str.slice(-end);
 };
-export function getTimeInTwoSeconds(): string {
+export function getTimeInSeconds(sec: number = 1): string {
   const now = new Date();
   // Add 2 seconds
-  now.setSeconds(now.getSeconds() + 2);
+  now.setSeconds(now.getSeconds() + sec);
 
   // Format to HH:mm:ss
   const hours = now.getUTCHours().toString().padStart(2, "0");

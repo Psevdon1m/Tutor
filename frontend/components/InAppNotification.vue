@@ -67,9 +67,8 @@ const emit = defineEmits(["close"]);
 const openQuestion = () => {
   if (props.data.question_id) {
     navigateTo("/questions/" + props.data.question_id);
-  } else {
-    closeNotification();
   }
+  closeNotification();
 };
 const closeNotification = () => {
   emit("close");

@@ -77,8 +77,6 @@ Generate questions and answers that:
           },
         ],
       });
-      console.log({ prompt: systemPrompt });
-      console.log({ output_text: response.output_text });
 
       const result = parseResponseJson(response.output_text);
 
