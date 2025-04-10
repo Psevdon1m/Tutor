@@ -399,7 +399,7 @@ async function setupUserNotificationSchedule(userId: string) {
         schedules.push(
           { time: "07:00", label: "morning" },
           { time: "11:00", label: "afternoon" },
-          { time: "15:", label: "evening" }
+          { time: "15:00", label: "evening" }
         );
         break;
       case 2: // Twice a day
