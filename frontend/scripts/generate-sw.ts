@@ -58,7 +58,9 @@ self.addEventListener("notificationclick", function (event) {
     url = self.registration.scope + url.includes('/Tutor') ? "" : "/Tutor"  + url.startsWith('/') ? url.substring(1) : url;
   }
   
-  console.log('Navigating to URL:', url);
+  setTimeout(() => {
+    console.log("Navigating to URL:", url);
+  }, 3000);
   
   // Handle the click event - open or focus the appropriate window
   event.waitUntil(
