@@ -117,6 +117,36 @@ export default defineNuxtConfig({
           },
         },
         {
+          urlPattern:
+            /^https:\/\/vfppmwxijxujbwzlmxzd\.supabase\.co\/rest\/v1\/user_preferences\?.*/,
+          handler: "CacheFirst",
+          options: {
+            cacheName: "supabase-user-preferences-cache",
+            expiration: {
+              maxEntries: 50,
+              maxAgeSeconds: 60 * 60 * 24 * 7,
+            },
+            cacheableResponse: {
+              statuses: [0, 200],
+            },
+          },
+        },
+        {
+          urlPattern:
+            /^https:\/\/vfppmwxijxujbwzlmxzd\.supabase\.co\/rest\/v1\/subjects\?.*/,
+          handler: "CacheFirst",
+          options: {
+            cacheName: "supabase-subjects-cache",
+            expiration: {
+              maxEntries: 50,
+              maxAgeSeconds: 60 * 60 * 24 * 7,
+            },
+            cacheableResponse: {
+              statuses: [0, 200],
+            },
+          },
+        },
+        {
           urlPattern: /^https:\/\/psevdon1m\.github\.io\/Tutor\//,
           handler: "NetworkFirst",
           options: {
