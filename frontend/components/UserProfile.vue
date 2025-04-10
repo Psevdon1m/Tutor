@@ -71,7 +71,7 @@ const handleSignOut = async () => {
 
     localStorage.removeItem("fcm_token");
     userStore.resetUserPreferences();
-    // Nuxt will automatically handle the navigation when user is signed out
+    window.location.reload();
   } catch (error) {
     console.error("Error signing out:", error);
   }

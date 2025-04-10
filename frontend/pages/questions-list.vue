@@ -118,8 +118,6 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from "vue";
-import type { Database } from "~/types/database";
-import type { Question } from "~/types/db/question";
 
 // State
 const loading = ref(true);
@@ -130,7 +128,8 @@ const questions = computed(() => questionsStore.getQuestions);
 
 // Fetch questions on mount
 onMounted(async () => {
-  if (questionsStore.questions.length === 0) {
+  if (questionsStore.questions.length <= 1) {
+    //if user opens notif  and checks question, then he gets back to questions list, there will be 1 question in the list, so we have to fetch questions in 2 cases when there is reload on questions-list route and when user opens notifs and gets back to questions list
     await questionsStore.fetchQuestions();
   }
   loading.value = false;
