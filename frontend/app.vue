@@ -26,6 +26,24 @@
         </button>
       </div>
     </div>
+    <div
+      v-if="showIosInstallPrompt"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
+    >
+      <div class="bg-white p-6 rounded-lg shadow-lg">
+        <h2 class="text-xl font-bold mb-4">Install Our App</h2>
+        <p class="mb-4">
+          To install this app on your iPhone, tap the "Share" icon and then "Add
+          to Home Screen".
+        </p>
+        <button
+          @click="closeIosInstallPrompt"
+          class="bg-blue-500 text-white px-4 py-2 rounded"
+        >
+          Got it!
+        </button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -61,6 +79,8 @@ const installPwa = async () => {
   }
 };
 
+const showIosInstallPrompt = ref(false);
+
 onMounted(() => {
   onMessageReceived((payload) => {
     console.log("Message received 2. ", payload);
@@ -76,6 +96,9 @@ onMounted(() => {
   });
   console.log($pwa);
   isPwaInstalled.value = $pwa?.isPWAInstalled || false;
+  if (isIosSafari()) {
+    showIosInstallPrompt.value = true;
+  }
 });
 
 watch(
@@ -85,4 +108,17 @@ watch(
     isPwaInstalled.value = newVal || false;
   }
 );
+
+const closeIosInstallPrompt = () => {
+  showIosInstallPrompt.value = false;
+};
+
+function isIosSafari() {
+  const userAgent = window.navigator.userAgent.toLowerCase();
+  return (
+    /iphone|ipad|ipod/.test(userAgent) &&
+    /safari/.test(userAgent) &&
+    !/crios/.test(userAgent)
+  );
+}
 </script>

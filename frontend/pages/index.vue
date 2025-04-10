@@ -139,7 +139,11 @@ const updateCurrentUserSubjects = () => {
 
 // Fetch subjects when component mounts
 onMounted(async () => {
-  await subjectsStore.fetchSubjects();
+  try {
+    await subjectsStore.fetchSubjects();
+  } catch (error) {
+    console.error("Error fetching subjects:", error);
+  }
 });
 
 async function savePreferences() {
