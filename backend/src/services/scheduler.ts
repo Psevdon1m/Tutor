@@ -315,7 +315,7 @@ export class SchedulerService {
               // Add a web specific object
               webpush: {
                 fcm_options: {
-                  link: `${process.env.FRONTEND_URL}/Tutor/questions/${data.question_id}`,
+                  link: `/Tutor/questions/${data.question_id}`,
                 },
               },
             },
