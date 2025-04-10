@@ -94,10 +94,13 @@ onMounted(() => {
       );
     }
   });
-  console.log($pwa);
-  isPwaInstalled.value = $pwa?.isPWAInstalled || false;
-  if (isIosSafari()) {
+  console.log($pwa?.isPWAInstalled);
+
+  if (isSafari() && !$pwa?.isPWAInstalled) {
+    debugger;
     showIosInstallPrompt.value = true;
+  } else if (!isSafari()) {
+    isPwaInstalled.value = $pwa?.isPWAInstalled || false;
   }
 });
 
@@ -113,12 +116,16 @@ const closeIosInstallPrompt = () => {
   showIosInstallPrompt.value = false;
 };
 
-function isIosSafari() {
+function isSafari() {
   const userAgent = window.navigator.userAgent.toLowerCase();
-  return (
-    /iphone|ipad|ipod/.test(userAgent) &&
-    /safari/.test(userAgent) &&
-    !/crios/.test(userAgent)
-  );
+  const isIos = /iphone|ipad|ipod/.test(userAgent);
+  const isMac = /macintosh/.test(userAgent);
+  const isSafari =
+    /safari/.test(userAgent) && !/crios|fxios|edgios/.test(userAgent);
+
+  // Check for iOS Safari or macOS Safari
+  const result = (isIos || isMac) && isSafari;
+  console.log("isSafari", result);
+  return result;
 }
 </script>
