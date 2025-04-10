@@ -83,6 +83,9 @@ export default defineNuxtConfig({
     srcDir: sw ? "service-worker" : undefined,
     filename: sw ? "sw.ts" : undefined,
     registerType: "autoUpdate",
+    client: {
+      installPrompt: true,
+    },
     manifest: {
       name: "Tutor PWA",
       short_name: "Tutor",
