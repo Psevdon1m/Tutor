@@ -38,9 +38,26 @@ const isPwaInstalled = ref(true);
 
 const { $pwa } = useNuxtApp();
 
-const installPwa = () => {
-  if ($pwa?.install) {
-    $pwa.install();
+let deferredPrompt: any;
+
+window.addEventListener("beforeinstallprompt", (e) => {
+  console.log("beforeinstallprompt");
+  e.preventDefault();
+  console.log({ e });
+
+  deferredPrompt = e;
+});
+
+const installPwa = async () => {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === "accepted") {
+      console.log("User accepted the A2HS prompt");
+    } else {
+      console.log("User dismissed the A2HS prompt");
+    }
+    deferredPrompt = null;
   }
 };
 
