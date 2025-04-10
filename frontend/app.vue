@@ -77,4 +77,12 @@ onMounted(() => {
   console.log($pwa);
   isPwaInstalled.value = $pwa?.isPWAInstalled || false;
 });
+
+watch(
+  () => $pwa?.isPWAInstalled,
+  (newVal) => {
+    console.log("isPwaInstalled", newVal);
+    isPwaInstalled.value = newVal || false;
+  }
+);
 </script>
