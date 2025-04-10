@@ -101,15 +101,6 @@ const closeIosInstallPrompt = () => {
 };
 
 function isSafari() {
-  const userAgent = window.navigator.userAgent.toLowerCase();
-  const isIos = /iphone|ipad|ipod/.test(userAgent);
-  const isMac = /macintosh/.test(userAgent);
-  const isSafari =
-    /safari/.test(userAgent) && !/crios|fxios|edgios/.test(userAgent);
-
-  // Check for iOS Safari or macOS Safari
-  const result = (isIos || isMac) && isSafari;
-  console.log("isSafari", result);
-  return result;
+  return navigator.vendor.includes("Apple");
 }
 </script>
