@@ -9,47 +9,32 @@
     />
     <NuxtPwaManifest />
     <NuxtPage />
-    <div
-      v-if="!isPwaInstalled"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
-    >
-      <div class="bg-white p-6 rounded-lg shadow-lg">
-        <h2 class="text-xl font-bold mb-4">Install Our App</h2>
-        <p class="mb-4">
-          For the best experience, install our app on your device.
-        </p>
-        <button
-          @click="installPwa"
-          class="bg-blue-500 text-white px-4 py-2 rounded"
-        >
-          Install
-        </button>
-      </div>
-    </div>
-    <div
-      v-if="showIosInstallPrompt"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
-    >
-      <div class="bg-white p-6 rounded-lg shadow-lg">
-        <h2 class="text-xl font-bold mb-4">Install Our App</h2>
-        <p class="mb-4">
-          To install this app on your iPhone, tap the "Share" icon and then "Add
-          to Home Screen".
-        </p>
-        <button
-          @click="closeIosInstallPrompt"
-          class="bg-blue-500 text-white px-4 py-2 rounded"
-        >
-          Got it!
-        </button>
-      </div>
-    </div>
+
+    <!-- Use InstallPrompt component for PWA installation -->
+    <InstallPrompt
+      :show="!isPwaInstalled"
+      title="Install Our App"
+      message="For the best experience, install our app on your device."
+      buttonText="Install"
+      @action="installPwa"
+    />
+
+    <!-- Use InstallPrompt component for iOS installation instructions -->
+    <InstallPrompt
+      :show="showIosInstallPrompt"
+      title="Install Our App"
+      message="To install this app on your iPhone, tap the 'Share' icon and then 'Add to Home Screen'."
+      buttonText="Got it!"
+      @action="closeIosInstallPrompt"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { useFirebase } from "@/composables/useFirebase";
 import { useNotification } from "@/composables/useNotification";
+import InstallPrompt from "@/components/InstallPrompt.vue";
+
 const { notification, showNotification, closeNotification } = useNotification();
 const { onMessageReceived } = useFirebase();
 const isPwaInstalled = ref(true);
@@ -97,7 +82,6 @@ onMounted(() => {
   console.log($pwa?.isPWAInstalled);
 
   if (isSafari() && !$pwa?.isPWAInstalled) {
-    debugger;
     showIosInstallPrompt.value = true;
   } else if (!isSafari()) {
     isPwaInstalled.value = $pwa?.isPWAInstalled || false;
