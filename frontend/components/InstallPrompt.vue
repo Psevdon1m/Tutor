@@ -1,7 +1,7 @@
 <template>
   <div v-if="show" class="fixed inset-0 flex items-center justify-center z-50">
     <div
-      class="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-xl max-w-md mx-auto backdrop-blur-md bg-opacity-70 border border-gray-200 dark:border-gray-700 backdrop-filter backdrop-blur-lg animate-gradient"
+      class="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-xl w-95 mx-auto backdrop-blur-md bg-opacity-70 border border-gray-200 dark:border-gray-700 backdrop-filter backdrop-blur-lg animate-gradient"
     >
       <h2 class="text-2xl font-semibold mb-4 text-[#062431]">
         {{ title }}
@@ -11,7 +11,7 @@
       </p>
       <button
         @click="onAction"
-        class="bg-[#5e9f95] hover:bg-green-700 text-[#062431] font-medium px-4 py-2 rounded transition duration-200"
+        class="bg-[#5e9f95] text-[#062431] font-medium px-4 py-2 rounded transition duration-200"
       >
         {{ buttonText }}
       </button>
