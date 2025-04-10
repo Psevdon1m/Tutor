@@ -102,13 +102,28 @@ export default defineNuxtConfig({
       globPatterns: ["**/*.{js,css,html,png,svg,ico}"],
       runtimeCaching: [
         {
+          urlPattern:
+            /^https:\/\/vfppmwxijxujbwzlmxzd\.supabase\.co\/rest\/v1\/questions\?.*/,
+          handler: "CacheFirst",
+          options: {
+            cacheName: "supabase-questions-cache",
+            expiration: {
+              maxEntries: 50,
+              maxAgeSeconds: 60 * 60 * 24 * 7,
+            },
+            cacheableResponse: {
+              statuses: [0, 200],
+            },
+          },
+        },
+        {
           urlPattern: /^https:\/\/psevdon1m\.github\.io\/Tutor\//,
           handler: "NetworkFirst",
           options: {
             cacheName: "tutor-cache",
             expiration: {
               maxEntries: 100,
-              maxAgeSeconds: 60 * 60 * 24 * 7, // 1 week
+              maxAgeSeconds: 60 * 60 * 24 * 7,
             },
             cacheableResponse: {
               statuses: [0, 200],
