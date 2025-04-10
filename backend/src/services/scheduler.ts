@@ -156,8 +156,7 @@ export class SchedulerService {
           {
             question_id: savedQuestion.id,
             subject: "",
-          },
-          savedQuestion.id
+          }
         );
         await this.supabase
           .from("pregenerated_questions")
@@ -235,8 +234,7 @@ export class SchedulerService {
           {
             question_id: savedQuestion.id,
             subject: subjectData.name,
-          },
-          savedQuestion.id
+          }
         );
 
         console.log(
@@ -264,8 +262,7 @@ export class SchedulerService {
     token: string,
     title: string,
     body: string,
-    data: any,
-    questionId: string
+    data: any
   ) {
     try {
       // Get OAuth 2.0 access token - this requires setting up Google Application Default Credentials
@@ -318,7 +315,7 @@ export class SchedulerService {
               // Add a web specific object
               webpush: {
                 fcm_options: {
-                  link: `/Tutor/questions/${data.question_id}`,
+                  link: `${process.env.FRONTEND_URL}/Tutor/questions/${data.question_id}`,
                 },
               },
             },
