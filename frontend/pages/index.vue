@@ -141,18 +141,6 @@ const updateCurrentUserSubjects = () => {
 onMounted(async () => {
   try {
     await subjectsStore.fetchSubjects();
-    let interval = setInterval(() => {
-      if (user.value?.id) {
-        console.log("fetching user preferences");
-        clearInterval(interval);
-
-        userStore.fetchUserPreferences(user.value?.id).then(() => {
-          nextTick(() => {
-            updateCurrentUserSubjects();
-          });
-        });
-      }
-    }, 100);
   } catch (error) {
     console.error("Error fetching data:", error);
   }
@@ -184,9 +172,11 @@ async function savePreferences() {
 }
 watch(
   user,
-  (newUser, oldUser) => {
-    if (newUser?.id !== oldUser?.id && newUser && oldUser) {
-      console.log("User changed, fetching preferences");
+  (newUser) => {
+    console.log({ newUser });
+
+    console.log("User changed, fetching preferences");
+    if (newUser && userPreferences.value.notification_frequency === null) {
       userStore.fetchUserPreferences(newUser.id).then(() => {
         nextTick(() => {
           updateCurrentUserSubjects();

@@ -1,7 +1,7 @@
 <template>
   <div class="flex items-center justify-between mb-12">
     <div class="flex items-center gap-4">
-      <img
+      <NuxtImg
         :src="userData?.avatar_url || 'https://placehold.co/400x400'"
         :alt="userData?.full_name || 'User'"
         class="w-12 h-12 rounded-full object-cover"
@@ -9,7 +9,7 @@
         loading="lazy"
         fetchpriority="high"
         decoding="async"
-      />
+      ></NuxtImg>
       <div>
         <p class="text-lg font-medium text-gray-900">
           {{ userData?.full_name }}
@@ -47,6 +47,7 @@
 <script setup lang="ts">
 import type { UserProfile } from "~/types/user";
 import type { Database } from "~/types/database";
+import { NuxtImg } from "#components";
 const user = useSupabaseUser();
 const supabase = useSupabaseClient<Database>();
 const userData = ref<UserProfile | null>(
