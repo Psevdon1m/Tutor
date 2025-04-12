@@ -27,12 +27,18 @@ export const useFirebase = () => {
 
   const requestPermission = async () => {
     try {
+      console.log("1");
+
       const permission = await Notification.requestPermission();
+      console.log("2");
+
       if (permission === "granted") {
+        console.log("2.1");
+
         const registration = await navigator.serviceWorker.register(
           "/Tutor/firebase-messaging-sw.js"
         );
-
+        console.log("2.2");
         const savedToken = localStorage.getItem("fcm_token");
         if (savedToken) {
           return savedToken;
@@ -41,14 +47,17 @@ export const useFirebase = () => {
           vapidKey: vapidKey,
           serviceWorkerRegistration: registration,
         });
+        console.log("2.3");
         localStorage.setItem("fcm_token", token);
         showNotification("Success", "Notification permission granted");
         return token;
       }
+      console.log("3");
       localStorage.removeItem("fcm_token");
       showNotification("Error", "Notification permission denied");
       throw new Error("Notification permission denied");
     } catch (error) {
+      console.log("4");
       console.error("Error getting permission:", error);
       localStorage.removeItem("fcm_token");
       showNotification("Error", "Error getting permission");
