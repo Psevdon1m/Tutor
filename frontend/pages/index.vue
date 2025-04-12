@@ -141,8 +141,20 @@ const updateCurrentUserSubjects = () => {
 onMounted(async () => {
   try {
     await subjectsStore.fetchSubjects();
+    let interval = setInterval(() => {
+      if (user.value?.id) {
+        console.log("fetching user preferences");
+        clearInterval(interval);
+
+        userStore.fetchUserPreferences(user.value?.id).then(() => {
+          nextTick(() => {
+            updateCurrentUserSubjects();
+          });
+        });
+      }
+    }, 100);
   } catch (error) {
-    console.error("Error fetching subjects:", error);
+    console.error("Error fetching data:", error);
   }
 });
 
