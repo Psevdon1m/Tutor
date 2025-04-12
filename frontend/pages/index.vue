@@ -173,7 +173,7 @@ async function savePreferences() {
 watch(
   user,
   (newUser, oldUser) => {
-    if (newUser?.id !== oldUser?.id && newUser) {
+    if (newUser?.id !== oldUser?.id && newUser && oldUser) {
       console.log("User changed, fetching preferences");
       userStore.fetchUserPreferences(newUser.id).then(() => {
         nextTick(() => {

@@ -60,8 +60,12 @@ const handleNotificationSubscription = async () => {
 const subscribeToNotifications = async () => {
   isSubscribing.value = true;
   try {
+    console.log("requesting permissions");
+
     const token = await requestPermission();
     if (token) {
+      console.log("has token, call to supabase");
+
       // Save the token to your Supabase user_preferences table
 
       const { error } = await supabase.from("user_preferences").upsert({
@@ -74,6 +78,8 @@ const subscribeToNotifications = async () => {
       if (error) throw error;
       console.log("Successfully subscribed to notifications");
       isSubscribed.value = true;
+    } else {
+      console.log("no token");
     }
   } catch (error) {
     console.error("Error subscribing to notifications:", error);
