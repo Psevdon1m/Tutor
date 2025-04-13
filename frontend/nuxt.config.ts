@@ -105,7 +105,7 @@ export default defineNuxtConfig({
         {
           urlPattern:
             /^https:\/\/vfppmwxijxujbwzlmxzd\.supabase\.co\/rest\/v1\/questions\?.*/,
-          handler: "CacheFirst",
+          handler: "NetworkFirst",
           options: {
             cacheName: "supabase-questions-cache",
             expiration: {
@@ -120,7 +120,7 @@ export default defineNuxtConfig({
         {
           urlPattern:
             /^https:\/\/vfppmwxijxujbwzlmxzd\.supabase\.co\/rest\/v1\/user_preferences\?.*/,
-          handler: "CacheFirst",
+          handler: "NetworkFirst",
           options: {
             cacheName: "supabase-user-preferences-cache",
             expiration: {
