@@ -103,13 +103,13 @@ export default defineNuxtConfig({
       globPatterns: ["**/*.{js,css,html,png,svg,ico}"],
       runtimeCaching: [
         {
-          urlPattern: /^https:\/\/lh3\.googleusercontent\.com\?.*/,
+          urlPattern: /^https:\/\/lh3\.googleusercontent\.com\/.*/,
           handler: "CacheFirst",
           options: {
             cacheName: "google-images-cache",
             expiration: {
-              maxEntries: 2,
-              maxAgeSeconds: 60 * 60 * 24 * 7,
+              maxEntries: 50,
+              maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
             },
             cacheableResponse: {
               statuses: [0, 200],
