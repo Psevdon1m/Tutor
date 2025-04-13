@@ -103,6 +103,20 @@ export default defineNuxtConfig({
       globPatterns: ["**/*.{js,css,html,png,svg,ico}"],
       runtimeCaching: [
         {
+          urlPattern: /^https:\/\/lh3\.googleusercontent\.com\?.*/,
+          handler: "CacheFirst",
+          options: {
+            cacheName: "google-images-cache",
+            expiration: {
+              maxEntries: 2,
+              maxAgeSeconds: 60 * 60 * 24 * 7,
+            },
+            cacheableResponse: {
+              statuses: [0, 200],
+            },
+          },
+        },
+        {
           urlPattern:
             /^https:\/\/vfppmwxijxujbwzlmxzd\.supabase\.co\/rest\/v1\/questions\?.*/,
           handler: "NetworkFirst",
