@@ -81,10 +81,13 @@ onMounted(() => {
   });
   console.log($pwa?.isPWAInstalled);
 
-  if (isSafari() && !$pwa?.isPWAInstalled) {
-    showIosInstallPrompt.value = true;
-  } else if (!isSafari()) {
-    isPwaInstalled.value = $pwa?.isPWAInstalled || false;
+  const environment = useRuntimeConfig();
+  if (environment.public.mode !== "localhost") {
+    if (isSafari() && !$pwa?.isPWAInstalled) {
+      showIosInstallPrompt.value = true;
+    } else if (!isSafari()) {
+      isPwaInstalled.value = $pwa?.isPWAInstalled || false;
+    }
   }
 });
 

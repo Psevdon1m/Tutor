@@ -2,11 +2,13 @@
   <h2 class="text-2xl font-semibold text-[#2a3538] mb-4 font-montserrat">
     Subjects
   </h2>
-  <div class="space-y-3 mb-12">
+  <div
+    class="h-[40vh] min-h-[300px] max-h-[600px] overflow-y-auto space-y-3 mb-12 pr-2"
+  >
     <!-- Show placeholders when loading -->
     <div
       v-if="!props.subjects.length"
-      v-for="i in 4"
+      v-for="i in 7"
       :key="i"
       class="w-full h-14 rounded-xl bg-gray-200 animate-pulse"
     />
@@ -31,7 +33,6 @@
 
 <script setup lang="ts">
 import type { Subject } from "~/types/db/subjects";
-import type { UserPreferences } from "~/types/db/preferences";
 import { useUserStore } from "~/stores/userStore";
 const userStore = useUserStore();
 const userPreferences = computed(() => userStore.getUserPreferences);

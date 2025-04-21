@@ -58,7 +58,7 @@ const submitForm = ref({
 const subjectsStore = useSubjectsStore();
 const userStore = useUserStore();
 const userPreferences = computed(() => userStore.getUserPreferences);
-const frequencies = [1, 2, 3];
+const frequencies = [2, 4, 6];
 const user = useSupabaseUser();
 const shouldReceiveTestNotification = computed(() => {
   return userStore.getUserPreferences?.subjects.length === 0;

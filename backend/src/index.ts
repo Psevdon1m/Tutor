@@ -395,21 +395,26 @@ async function setupUserNotificationSchedule(userId: string) {
 
     // Set up cron jobs based on notification frequency
     switch (userPref.notification_frequency) {
-      case 3: // Three times a day
+      case 6: // 6 times a day
         schedules.push(
           { time: "07:00", label: "morning" },
           { time: "11:00", label: "afternoon" },
-          { time: "17:00", label: "evening" }
+          { time: "15:00", label: "afternoon" },
+          { time: "19:00", label: "evening" },
+          { time: "23:00", label: "evening" }
         );
         break;
-      case 2: // Twice a day
+      case 4: // 4 times a day
         schedules.push(
           { time: "07:00", label: "morning" },
-          { time: "11:00", label: "afternoon" }
+          { time: "11:00", label: "afternoon" },
+          { time: "15:00", label: "afternoon" },
+          { time: "19:00", label: "evening" }
         );
         break;
-      case 1: // Once a day
+      case 2: // twice a day
         schedules.push({ time: "07:00", label: "morning" });
+        schedules.push({ time: "15:00", label: "afternoon" });
         break;
       default:
         console.error(`Invalid notification frequency for user ${userId}`);

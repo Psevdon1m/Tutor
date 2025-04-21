@@ -32,9 +32,8 @@ export const useUserStore = defineStore("userStore", {
     async updateCronJobs(user_id: string) {
       const config = useRuntimeConfig();
       const isLocalhost = config.public.mode === "localhost";
-      console.log({ isLocalhost });
       try {
-        const result = await fetch(
+        await $fetch(
           isLocalhost
             ? "http://localhost:3001/api/update-notification-schedule"
             : "https://tutor-production-a449.up.railway.app/api/update-notification-schedule",
@@ -47,8 +46,6 @@ export const useUserStore = defineStore("userStore", {
             },
           }
         );
-        const data = await result.json();
-        console.log(data);
       } catch (error) {
         console.error("Error updating cron jobs:", error);
       }
@@ -59,7 +56,7 @@ export const useUserStore = defineStore("userStore", {
       console.log({ isLocalhost });
       try {
         const time = getTimeInSeconds(1);
-        await fetch(
+        await $fetch(
           isLocalhost
             ? "http://localhost:3001/api/require-first-notification"
             : "https://tutor-production-a449.up.railway.app/api/require-first-notification",
@@ -86,7 +83,7 @@ export const useUserStore = defineStore("userStore", {
       const isLocalhost = config.public.mode === "localhost";
       console.log({ isLocalhost });
       try {
-        await fetch(
+        await $fetch(
           isLocalhost
             ? "http://localhost:3001/api/pre-generate-response-from-openai"
             : "https://tutor-production-a449.up.railway.app/api/pre-generate-response-from-openai",
