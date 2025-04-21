@@ -3,7 +3,7 @@
     Subjects
   </h2>
   <div
-    class="h-[35vh] min-h-[200px] max-h-[600px] overflow-y-auto space-y-3 mb-12 pr-2"
+    class="h-[33vh] min-h-[200px] max-h-[600px] overflow-y-auto space-y-3 mb-12 pr-2"
   >
     <!-- Show placeholders when loading -->
     <div
