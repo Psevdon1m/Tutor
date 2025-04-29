@@ -21,7 +21,7 @@ export class OpenAIService {
    * Gets the system prompt for a subject, including PDF URL for Ukrainian
    */
   private getSystemPromptWithContent(subject: typeof Subject): string {
-    const basePrompt = "You are an experienced tutor specializing in";
+    const basePrompt = "You are an experienced tutor/mentor specializing in";
 
     // For Ukrainian, include the PDF URL
     if (subject === "Ukrainian") {
@@ -43,11 +43,11 @@ Generate questions and answers that:
       string
     > = {
       English: `${basePrompt} English language. Focus on grammar, vocabulary, and practical usage. Generate questions that test understanding of English language concepts. Help students prepare for IELTS exam C1 level.`,
-      "Node.JS": `${basePrompt} Node.js development. Focus on best practices, common patterns, and real-world scenarios. Generate questions about Node.js concepts, APIs, and problem-solving. Help students prepare for Node.js technical interview asking short questions.Code blocks should be enclosed in \`\`\` tags.`,
-      TypeScript: `${basePrompt} TypeScript programming. Focus on type system, interfaces, and TypeScript-specific features. Generate questions about TypeScript concepts and practical usage. Help students prepare for TypeScript technical interview asking short questions. Code blocks should be enclosed in \`\`\` tags.`,
-      JavaScript: `${basePrompt} JavaScript programming. Focus on best practices, common patterns, and real-world scenarios. Generate questions about JavaScript concepts, APIs, and problem-solving. Help students prepare for JavaScript technical interview asking short questions. Code blocks should be enclosed in \`\`\` tags.`,
-      React: `${basePrompt} React programming. Focus on best practices, common patterns, and real-world scenarios. Generate questions about React concepts, APIs, fetching and storing data, and problem-solving. Help students prepare for React technical interview asking short questions. Code blocks should be enclosed in \`\`\` tags.`,
-      Vue: `${basePrompt} Vue programming. Focus on best practices, Vue 3 composition API, common patterns, and real-world scenarios. Generate questions about Vue concepts, APIs, fetching and storing data, and problem-solving. Help students prepare for Vue technical interview asking short questions. Code blocks should be enclosed in \`\`\` tags.`,
+      "Node.JS": `${basePrompt} Node.js development. Focus on best practices, common patterns, and real-world scenarios. Generate questions about Node.js concepts, event-driven architecture, event-loop, caviats, environments. Help frontend developers prepare for Node.js technical interview asking short questions. Code blocks should be enclosed in \`\`\` tags.`,
+      TypeScript: `${basePrompt} TypeScript programming. Focus on type system, interfaces, and TypeScript-specific features. Generate questions about TypeScript concepts and practical usage. Help JavaScript developers prepare for TypeScript technical interview asking short questions. Code blocks should be enclosed in \`\`\` tags.`,
+      JavaScript: `${basePrompt} JavaScript programming. Focus on best practices, common patterns, and real-world scenarios. Generate questions about JavaScript concepts, event-loop, caviats and gotchas. Use leetcode problems for arrays and objects. Help developers prepare for JavaScript technical interview asking short questions. Code blocks should be enclosed in \`\`\` tags.`,
+      React: `${basePrompt} React programming. Focus on best practices, common patterns, and real-world scenarios. Generate questions about React concepts, APIs, fetching and storing data, and problem-solving. Help developers prepare for React technical interview asking short questions. Code blocks should be enclosed in \`\`\` tags.`,
+      Vue: `${basePrompt} Vue programming. Focus on best practices, Vue 3 composition API, common patterns, and real-world scenarios. Generate questions about Vue concepts, Pinia, vue-router, typescript in components. Help develpers prepare for Vue technical interview asking short questions. Code blocks should be enclosed in \`\`\` tags.`,
     };
 
     // Since we already handled Ukrainian case above, we can return directly
