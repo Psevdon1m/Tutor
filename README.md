@@ -39,12 +39,12 @@ Tutor is a modern, AI-powered learning platform built as a Progressive Web Appli
 ## Project Demo
 
 - Main features: OAuth, Push Notification Subscription, Subject and Notification frequency selection, Questions list with answers.
-  ![Project Demo](./demo-gifs/login-oauth-demo.gif)
+  ![Project Demo](https://github.com/Psevdon1m/Tutor/blob/main/demo-gifs/login-oauth-demo.gif?raw=true)
 
 - App is accessible offline and you can always go through the questions you have already received.
-  ![Offline Mode Demo](./demo-gifs/offline-mode-demo.gif)
+  ![Offline Mode Demo](https://github.com/Psevdon1m/Tutor/blob/main/demo-gifs/offline-mode-demo.gif?raw=true)
 - App will send you up to 6 Push Notification using FCM based on topics selected during the day
-  ![Push notification Demo](./demo-gifs/push-demo.gif)
+  ![Push notification Demo](https://github.com/Psevdon1m/Tutor/blob/main/demo-gifs/push-demo.gif?raw=true)
 
 ## CI/CD
 
